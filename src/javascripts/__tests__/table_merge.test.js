@@ -1,51 +1,113 @@
 import TableMerge from '../modules/table_merge'
+import * as TableUtils from '../utils/TableUtils'
 
-describe('develop table utilities', () => {
-    let tableMerge;
-    let grid;
+describe('buildTableMap', () => {
+    let tableEl;
 
-    beforeEach(() => {
-        tableMerge = new TableMerge();
-        grid = tableMerge.initializeTableMap(4, 3);
+    describe('no spans', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = `
+                    <tr>
+                      <td>A1</td>
+                      <td>A2</td>
+                      <td>A3</td>
+                    </tr>
+                    <tr>
+                      <td>B1</td>
+                      <td>B2</td>
+                      <td>B3</td>
+                    </tr>
+                `;
+        });
+
+        it('builds a map', () => {
+            const grid = TableUtils.buildTableMap(tableEl);
+
+            let log = TableUtils.logGrid(grid);
+            assert.equal(log[0], '1,1,TD 1,1,TD 1,1,TD');
+            assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
+        });
     });
 
-    it('initializeTableMap', () => {
-        assert.equal(grid.length, 4);
-        assert.equal(grid[0].length, 3);
-        // tableMerge.logGrid(grid).forEach(line => console.log(line));
+    describe('single colspan', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = `
+                    <tr>
+                      <td colspan="2">A1</td>
+                      <td>A3</td>
+                    </tr>
+                    <tr>
+                      <td>B1</td>
+                      <td>B2</td>
+                      <td>B3</td>
+                    </tr>
+                `;
+        });
+
+        it('builds a map', () => {
+            const grid = TableUtils.buildTableMap(tableEl);
+
+            let log = TableUtils.logGrid(grid);
+            assert.equal(log[0], '1,2,TD 1,1,-- 1,1,TD');
+            assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
+        });
     });
 
-    it('fillSpans 1,1', () => {
-        const cell = {rowSpan: 1, colSpan: 1};
-        tableMerge.fillSpans(grid, 0, 0, cell);
-        let log = tableMerge.logGrid(grid);
-        assert.equal(log[0], '1,1,el 0,0,-- 0,0,--');
-        assert.equal(log[1], '0,0,-- 0,0,-- 0,0,--');
+    describe('single rowspan', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = `
+                    <tr>
+                      <td rowspan="2">A1</td>
+                      <td>A2</td>
+                      <td>A3</td>
+                    </tr>
+                    <tr>
+                      <td>B2</td>
+                      <td>B3</td>
+                    </tr>
+                `;
+        });
+
+        it('builds a map', () => {
+            const grid = TableUtils.buildTableMap(tableEl);
+
+            let log = TableUtils.logGrid(grid);
+            assert.equal(log[0], '2,1,TD 1,1,TD 1,1,TD');
+            assert.equal(log[1], '1,1,-- 1,1,TD 1,1,TD');
+        });
     });
 
-    it('fillSpans 1,2', () => {
-        const cell = {rowSpan: 1, colSpan: 2};
-        tableMerge.fillSpans(grid, 0, 0, cell);
-        let log = tableMerge.logGrid(grid);
-        assert.equal(log[0], '1,2,el 1,1,-- 0,0,--');
-        assert.equal(log[1], '0,0,-- 0,0,-- 0,0,--');
-    });
+    describe('colspan and rowspan', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = `
+                    <tr>
+                      <td colspan="2" rowspan="2">A1</td>
+                      <td>A3</td>
+                    </tr>
+                    <tr>
+                      <td>B3</td>
+                    </tr>
+                    <tr>
+                      <td>C1</td>
+                      <td>C2</td>
+                      <td>C3</td>
+                    </tr>
+                `;
+        });
 
-    it('fillSpans 2,1', () => {
-        const cell = {rowSpan: 2, colSpan: 1};
-        tableMerge.fillSpans(grid, 0, 0, cell);
-        let log = tableMerge.logGrid(grid);
-        assert.equal(log[0], '2,1,el 0,0,-- 0,0,--');
-        assert.equal(log[1], '1,1,-- 0,0,-- 0,0,--');
-    });
+        it('builds a map', () => {
+            const grid = TableUtils.buildTableMap(tableEl);
 
-    it('fillSpans 2,2', () => {
-        const cell = {rowSpan: 2, colSpan: 2};
-        tableMerge.fillSpans(grid, 0, 0, cell);
-        let log = tableMerge.logGrid(grid);
-        log.forEach(line => console.log(line));
-        assert.equal(log[0], '2,2,el 2,1,-- 0,0,--');
-        assert.equal(log[1], '1,2,-- 1,1,-- 0,0,--');
-        assert.equal(log[2], '0,0,-- 0,0,-- 0,0,--');
+            let log = TableUtils.logGrid(grid);
+            log.forEach(line => console.log(line));
+            assert.equal(log[0], '2,2,TD 2,1,-- 1,1,TD');
+            assert.equal(log[1], '1,2,-- 1,1,-- 1,1,TD');
+            assert.equal(log[2], '1,1,TD 1,1,TD 1,1,TD');
+        });
     });
-})
+});
+
