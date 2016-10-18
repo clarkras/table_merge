@@ -6,6 +6,16 @@
 
 {% extends 'layouts/application.html' %}
 
+{% block head %}
+    <link rel="stylesheet" href="stylesheets/tables.css">
+{% endblock %}
+
 {% block content %}
-  <h1 data-module="example">Hello World!</h1>
+  <h1>Table cell merge</h1>
+  <div data-module="table_merge">
+      {% include "./tables/simple_1.html" %}
+      {% include "./tables/simple_2.html" %}
+      {% include "./tables/simple_3.html" %}
+      {% include "./tables/edge_cases.html" %}
+  </div>
 {% endblock %}
