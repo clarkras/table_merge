@@ -22,12 +22,66 @@ export function buildTableMap(tableEl){
  *     unMerge
  */
 export function operations(grid, el){
+    const [row, col] = findCell(grid, el);
+    const cell = grid[row][col];
+    return {
+        mergeLeft: canMergeLeft(grid, row, col),
+        mergeRight: canMergeRight(grid, row, col),
+        mergeUp: canMergeUp(grid, row, col),
+    }
+}
 
+/**
+ * Returns [row, col].
+ */
+function findCell(grid, el){
+    for (let row = 0; row < grid.length; row++){
+        for (let col = 0; col < grid[row].length; col++){
+            if (grid[row][col].el === el) return [row, col];
+        }
+    }
+    throw new Error('findCell: element does not exist');
 }
 
 function canMergeLeft(grid, row, col){
     if (col === 0) return false;
-    // Is the height of the cell on left the same as the height of the selected cell?
+
+    const cell = grid[row][col];
+    const left = grid[row][col - 1];
+
+    // Is the height of the cell on left the same as the height of the selected cell, and
+    // are they anchored on the same row?
+    if (cell.rowSpan === left.rowSpan){
+        const anchor = grid[row][col - left.colSpan + 1];
+        if (anchor.el) return true;
+    }
+
+    return false;
+}
+
+function canMergeRight(grid, row, col){
+    if (col === grid[row].length - 1) return false;
+
+    const cell = grid[row][col];
+    const right = grid[row][col + cell.colSpan];
+
+    if (right.el && (cell.rowSpan === right.rowSpan)) return true;
+
+    return false;
+}
+
+function canMergeUp(grid, row, col){
+    if (row === 0) return false;
+
+    const cell = grid[row][col];
+    const above = grid[row - 1][col];
+
+    if (cell.colSpan = above.colSpan){
+        const anchor = grid[row - above.colSpan][col];
+        if (anchor.el) return true;
+    }
+
+    return false;
 }
 
 /**
@@ -37,8 +91,8 @@ function canMergeLeft(grid, row, col){
  *
  * Example:
  *
- *   '2,2,TD 2,1,-- 1,1,TD'
- *   '1,2,-- 1,1,-- 1,1,TD'
+ *   '2,2,TD 2,2,-- 1,1,TD'
+ *   '2,2,-- 2,2,-- 1,1,TD'
  *   '1,1,TD 1,1,TD 1,1,TD'
  *
  */
@@ -124,8 +178,8 @@ function fillSpans(grid, row, col, cell){
     for (let i = 0; i < cell.rowSpan; i++){
         for (let j = 0; j < cell.colSpan; j++){
             assertGrid(grid, row + i, col + j);
-            grid[row + i][col + j].rowSpan = cell.rowSpan - i;
-            grid[row + i][col + j].colSpan = cell.colSpan - j;
+            grid[row + i][col + j].rowSpan = cell.rowSpan;
+            grid[row + i][col + j].colSpan = cell.colSpan;
         }
     }
 }
