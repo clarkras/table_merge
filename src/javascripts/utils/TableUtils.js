@@ -28,6 +28,7 @@ export function operations(grid, el){
         mergeLeft: canMergeLeft(grid, row, col),
         mergeRight: canMergeRight(grid, row, col),
         mergeUp: canMergeUp(grid, row, col),
+        mergeDown: canMergeDown(grid, row, col),
     }
 }
 
@@ -49,8 +50,6 @@ function canMergeLeft(grid, row, col){
     const cell = grid[row][col];
     const left = grid[row][col - 1];
 
-    // Is the height of the cell on left the same as the height of the selected cell, and
-    // are they anchored on the same row?
     if (cell.rowSpan === left.rowSpan){
         const anchor = grid[row][col - left.colSpan + 1];
         if (anchor.el) return true;
@@ -60,9 +59,10 @@ function canMergeLeft(grid, row, col){
 }
 
 function canMergeRight(grid, row, col){
-    if (col === grid[row].length - 1) return false;
-
     const cell = grid[row][col];
+
+    if (col + cell.colSpan === grid[row].length) return false;
+
     const right = grid[row][col + cell.colSpan];
 
     if (right.el && (cell.rowSpan === right.rowSpan)) return true;
@@ -76,10 +76,23 @@ function canMergeUp(grid, row, col){
     const cell = grid[row][col];
     const above = grid[row - 1][col];
 
-    if (cell.colSpan = above.colSpan){
-        const anchor = grid[row - above.colSpan][col];
+    if (cell.colSpan === above.colSpan){
+        const anchor = grid[row - above.rowSpan][col];
         if (anchor.el) return true;
     }
+
+    return false;
+}
+
+function canMergeDown(grid, row, col){
+    const cell = grid[row][col];
+
+    // At the bottom?
+    if (row + cell.rowSpan === grid.length) return false;
+
+    const below = grid[row + cell.rowSpan][col];
+
+    if (below.el && cell.colSpan === below.colSpan) return true;
 
     return false;
 }
