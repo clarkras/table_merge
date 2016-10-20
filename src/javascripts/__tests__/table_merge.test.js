@@ -1,16 +1,20 @@
 import TableMerge from '../modules/table_merge'
 import * as TableUtils from '../utils/TableUtils'
 
-function operationsToString(ops){
+function operationsToString(expected, actual){
     return `
-        mergeLeft: ${ops.mergeLeft},
-        mergeRight: ${ops.mergeRight},
-        mergeUp: ${ops.mergeUp},
-        mergeDown: ${ops.mergeDown},
+        operation    expected, actual
+        mergeLeft:   ${expected.mergeLeft}, ${actual.mergeLeft},
+        mergeRight:  ${expected.mergeRight}, ${actual.mergeRight},
+        mergeUp:     ${expected.mergeUp}, ${actual.mergeUp},
+        mergeDown:   ${expected.mergeDown}, ${actual.mergeDown},
+        insertLeft:  ${expected.insertLeft}, ${actual.insertLeft},
+        insertRight: ${expected.insertRight}, ${actual.insertRight},
+        insertAbove: ${expected.insertAbove}, ${actual.insertAbove},
+        insertBelow: ${expected.insertBelow}, ${actual.insertBelow},
     `;
 }
-// console.log('actual', operationsToString(operations));
-// console.log('expected', operationsToString(expected));
+// console.log(operationsToString(expected, operations));
 
 describe('TableUtils', () => {
     let tableEl, grid;
@@ -46,6 +50,10 @@ describe('TableUtils', () => {
                 mergeRight: true,
                 mergeUp: false,
                 mergeDown: true,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -59,6 +67,10 @@ describe('TableUtils', () => {
                 mergeRight: true,
                 mergeUp: false,
                 mergeDown: true,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -72,6 +84,10 @@ describe('TableUtils', () => {
                 mergeRight: false,
                 mergeUp: true,
                 mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -105,7 +121,45 @@ describe('TableUtils', () => {
                 mergeLeft: false,
                 mergeRight: true,
                 mergeUp: false,
+                mergeDown: false,   // s/b true
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(0, 2)', () => {
+            const operations = TableUtils.operations(grid, grid[0][2].el);
+
+            const expected = {
+                mergeLeft: true,
+                mergeRight: false,
+                mergeUp: false,
+                mergeDown: true,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(1, 1)', () => {
+            const operations = TableUtils.operations(grid, grid[1][1].el);
+
+            const expected = {
+                mergeLeft: true,
+                mergeRight: true,
+                mergeUp: false,
                 mergeDown: false,
+                insertLeft: false,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -133,6 +187,23 @@ describe('TableUtils', () => {
             assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
         });
 
+        it('#operations(0, 0)', () => {
+            const operations = TableUtils.operations(grid, grid[0][0].el);
+
+            const expected = {
+                mergeLeft: false,
+                mergeRight: true,
+                mergeUp: false,
+                mergeDown: true,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
         it('#operations(0, 1)', () => {
             const operations = TableUtils.operations(grid, grid[0][1].el);
 
@@ -141,6 +212,44 @@ describe('TableUtils', () => {
                 mergeRight: false,
                 mergeUp: false,
                 mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(1, 1)', () => {
+            const operations = TableUtils.operations(grid, grid[1][1].el);
+
+            const expected = {
+                mergeLeft: true,
+                mergeRight: true,
+                mergeUp: false,
+                mergeDown: false,
+                insertLeft: true,
+                insertRight: false,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(1, 2)', () => {
+            const operations = TableUtils.operations(grid, grid[1][2].el);
+
+            const expected = {
+                mergeLeft: true,
+                mergeRight: false,
+                mergeUp: false,
+                mergeDown: false,
+                insertLeft: false,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -176,6 +285,27 @@ describe('TableUtils', () => {
                 mergeRight: false,
                 mergeUp: false,
                 mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(1, 1)', () => {
+            const operations = TableUtils.operations(grid, grid[1][1].el);
+
+            const expected = {
+                mergeLeft: false,
+                mergeRight: true,
+                mergeUp: true,
+                mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: false,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
@@ -201,7 +331,6 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            log.forEach(line => console.log(line));
             assert.equal(log[0], '2,2,TD 2,2,-- 1,1,TD');
             assert.equal(log[1], '2,2,-- 2,2,-- 1,1,TD');
             assert.equal(log[2], '1,1,TD 1,1,TD 1,1,TD');
@@ -215,19 +344,44 @@ describe('TableUtils', () => {
                 mergeRight: false,
                 mergeUp: false,
                 mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);
         });
 
         it('#operations(1, 2)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+            const operations = TableUtils.operations(grid, grid[1][2].el);
 
             const expected = {
                 mergeLeft: false,
                 mergeRight: false,
+                mergeUp: true,
+                mergeDown: true,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: false,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+        it('#operations(2, 0)', () => {
+            const operations = TableUtils.operations(grid, grid[2][0].el);
+
+            const expected = {
+                mergeLeft: false,
+                mergeRight: true,
                 mergeUp: false,
                 mergeDown: false,
+                insertLeft: true,
+                insertRight: false,
+                insertAbove: true,
+                insertBelow: true,
             };
 
             assert.deepEqual(operations, expected);

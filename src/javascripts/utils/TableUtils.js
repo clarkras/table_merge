@@ -29,6 +29,10 @@ export function operations(grid, el){
         mergeRight: canMergeRight(grid, row, col),
         mergeUp: canMergeUp(grid, row, col),
         mergeDown: canMergeDown(grid, row, col),
+        insertLeft: canInsertLeft(grid, col),
+        insertRight: canInsertRight(grid, row, col),
+        insertAbove: canInsertAbove(grid, row),
+        insertBelow: canInsertBelow(grid, row, col),
     }
 }
 
@@ -51,7 +55,7 @@ function canMergeLeft(grid, row, col){
     const left = grid[row][col - 1];
 
     if (cell.rowSpan === left.rowSpan){
-        const anchor = grid[row][col - left.colSpan + 1];
+        const anchor = grid[row][col - left.colSpan];
         if (anchor.el) return true;
     }
 
@@ -97,8 +101,51 @@ function canMergeDown(grid, row, col){
     return false;
 }
 
+function canInsertLeft(grid, col){
+    if (col === 0) return true;  // We really don't need this.
+
+    for (let row = 0; row < grid.length; row += grid[row][col].rowSpan){
+        // If it's a virtual cell, we can't split it with a new column.
+        if (!grid[row][col].el) return false;
+    }
+
+    return true;
+}
+
+function canInsertRight(grid, row, col){
+    const rightCol = col + grid[row][col].colSpan;
+
+    if (rightCol === grid[0].length){
+        return true;
+    } else {
+        return canInsertLeft(grid, rightCol);
+    }
+}
+
+function canInsertAbove(grid, row){
+    if (row === 0) return true;
+
+    for (let col = 0; col < grid[0].length; col += grid[row][col].colSpan){
+        if (!grid[row][col].el) return false;
+    }
+
+    return true;
+}
+
+function canInsertBelow(grid, row, col){
+    const belowRow = row + grid[row][col].rowSpan;
+
+    if (belowRow === grid.length){
+        return true;
+    } else {
+        return canInsertAbove(grid, belowRow);
+    }
+
+    return false;
+}
+
 /**
- * Returns a array of strings that represent rows in the grid.
+ * Returns an array of strings that represent rows in the grid.
  * Each cell has the form: rowspan,colspan,tagName. The tagName
  * is '--' if the cell is a virtual cell (from a rowspan or colspan).
  *
