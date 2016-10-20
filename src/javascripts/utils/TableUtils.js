@@ -63,15 +63,13 @@ function canMergeLeft(grid, row, col){
 }
 
 function canMergeRight(grid, row, col){
-    const cell = grid[row][col];
+    const rightCol = col + grid[row][col].colSpan;
 
-    if (col + cell.colSpan === grid[row].length) return false;
-
-    const right = grid[row][col + cell.colSpan];
-
-    if (right.el && (cell.rowSpan === right.rowSpan)) return true;
-
-    return false;
+    if (rightCol === grid[0].length){
+        return false;
+    } else {
+        return canMergeLeft(grid, row, rightCol);
+    }
 }
 
 function canMergeUp(grid, row, col){
@@ -89,16 +87,13 @@ function canMergeUp(grid, row, col){
 }
 
 function canMergeDown(grid, row, col){
-    const cell = grid[row][col];
+    const belowRow = row + grid[row][col].rowSpan;
 
-    // At the bottom?
-    if (row + cell.rowSpan === grid.length) return false;
-
-    const below = grid[row + cell.rowSpan][col];
-
-    if (below.el && cell.colSpan === below.colSpan) return true;
-
-    return false;
+    if (belowRow === grid.length){
+        return false;
+    } else {
+        return canMergeUp(grid, belowRow, col);
+    }
 }
 
 function canInsertLeft(grid, col){
