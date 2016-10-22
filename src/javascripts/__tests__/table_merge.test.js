@@ -23,15 +23,7 @@ describe('TableUtils', () => {
 
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = `
-                <tr>
-                    <td>A1</td> <td>A2</td> <td>A3</td>
-                </tr>
-                <tr>
-                    <td>B1</td> <td>B2</td> <td>B3</td>
-                </tr>
-            `;
-
+            tableEl.innerHTML = TABLE_HTML['no spans'];
             grid = TableUtils.buildTableMap(tableEl);
         });
 
@@ -97,14 +89,7 @@ describe('TableUtils', () => {
     describe('single colspan top left', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = `
-                    <tr>
-                        <td colspan="2">A1, A2</td> <td>A3</td>
-                    </tr>
-                    <tr>
-                        <td>B1</td> <td>B2</td> <td>B3</td>
-                    </tr>
-                `;
+            tableEl.innerHTML = TABLE_HTML['single colspan top left'];
             grid = TableUtils.buildTableMap(tableEl);
         });
 
@@ -388,3 +373,23 @@ describe('TableUtils', () => {
         });
     });
 });
+
+const TABLE_HTML = {
+    'no spans': `
+        <tr>
+            <td>A1</td> <td>A2</td> <td>A3</td>
+        </tr>
+        <tr>
+            <td>B1</td> <td>B2</td> <td>B3</td>
+        </tr>
+    `,
+    'single colspan top left': `
+        <tr>
+            <td colspan="2">A1, A2</td> <td>A3</td>
+        </tr>
+        <tr>
+            <td>B1</td> <td>B2</td> <td>B3</td>
+        </tr>
+    `,
+
+};
