@@ -1,4 +1,4 @@
-$arrow-size: 5px
+$arrow-size: 8px
 
 .table-test
   border: 1px solid #444
@@ -16,41 +16,40 @@ $arrow-size: 5px
   th
     background: lightblue
 
+.hidden
+  display: none
+
 .arrow-container
   display: inline-block
-  width: 20px
-  height: 20px
+  width: $arrow-size * 4
+  height: $arrow-size * 4
   position: relative
 
 .arrow
-    position: absolute
-    width: 0px 
-    height: 0px 
-    border-left: $arrow-size solid transparent
-    border-right: $arrow-size solid transparent
-    border-top: $arrow-size solid transparent
-    border-bottom: $arrow-size solid transparent
+  position: absolute
+  width: 0px 
+  height: 0px 
+  border-left: $arrow-size solid transparent
+  border-right: $arrow-size solid transparent
+  border-top: $arrow-size solid transparent
+  border-bottom: $arrow-size solid transparent
 
 .arrow-up
-    border-bottom: $arrow-size solid #2f2f2f
-    top: 0px
-    left: 8px
+  border-bottom: $arrow-size solid #2f2f2f
+  top: 0 - $arrow-size / 2
+  left: $arrow-size * 1.5
 
 .arrow-down
-    border-top: $arrow-size solid #f00
-    top: 16px
-    left: 8px
+  border-top: $arrow-size solid #f00
+  top: $arrow-size * 3.5
+  left: $arrow-size * 1.5
 
 .arrow-right
-    width: 0px 
-    height: 0px 
-    border-left: $arrow-size solid green
-    top: 8px
-    left: 16px
+  border-left: $arrow-size solid green
+  top: $arrow-size * 1.5
+  left: $arrow-size * 3.5
 
 .arrow-left
-    width: 0px 
-    height: 0px 
-    border-right: $arrow-size solid blue 
-    top: 8px
-    left: 0px
+  border-right: $arrow-size solid blue 
+  top: $arrow-size * 1.5
+  left: 0 - $arrow-size / 2

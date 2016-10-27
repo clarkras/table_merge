@@ -1,3 +1,4 @@
+// The purpose of this file is to learn about the DOM API for tables.
 describe('tables', () => {
     let container;
     let table;

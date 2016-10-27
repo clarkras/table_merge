@@ -1,8 +1,56 @@
+export default class TableGrid{
+    constructor(tableEl){
+        this.tableEl = tableEl;
+
+        const [nRows, nCols] = this.dimensions();
+        this.grid = this.initializeGrid();
+        this.populateGrid(nRows, nCols);
+    }
+
+    /**
+     * Returns the dimensions of a table, accounting for "ghost" cells that 
+     * have been merged by [rowspan] or [colspan] attributes from their
+     * neighbors.
+     *
+     * @return [nRows {integer}, nCols {integer}]
+     */
+    dimensions_(){
+        const rows = Array.from(this.tableEl.rows);
+
+        const nCols = rows.reduce((maxCols, row) => {
+            const cols = Array.from(row.cells).reduce((rowCols, cell) => {
+                return rowCols += cell.colSpan;
+            }, 0);
+            return Math.max(maxCols, cols);
+        }, 0);
+
+        return [rows.length, nCols];
+    }
+
+    initializeGrid_(){
+        const [nRows, nCols] = this.dimensions_();
+        const grid = new Array(nRows);
+        for (let i = 0; i < nRows; i++) {
+            grid[i] = new Array(nCols);
+            for (let j = 0; j < nCols; j++) {
+                grid[i][j] = {
+                    el: null,
+                    colSpan: 0,
+                    rowSpan: 0,
+                };
+            }
+        }
+
+        return grid;
+    }
+
+
+}
+
 export function buildTableMap(tableEl){
     const [nRows, nCols] = dimensions(tableEl);
     const grid = initializeTableMap(nRows, nCols);
     populateTableMap(tableEl, grid, nRows, nCols);
-    grid.tableID = tableEl.id;  // for debugging
     return grid;
 }
 
@@ -47,6 +95,17 @@ function findCell(grid, el){
         }
     }
     throw new Error('findCell: element does not exist');
+}
+
+function subGrid(grid, row, col, height, width){
+    const subGrid = grid.slice(row, row + height).map(row => row.slice(col, col + width));
+
+    let subGridHeight = 0;
+    
+
+    for (let i = row; i < grid.length && ; i += grid[i][col].rowSpan){
+        if (!grid[i][col].el) return false;
+    }
 }
 
 function canMergeLeft(grid, row, col){
@@ -243,8 +302,7 @@ function fillSpans(grid, row, col, cell){
 function assertGrid(grid, row, col){
     // console.log(row, col);
     if (row >= grid.length || col >= grid[0].length){
-        console.log(logGrid(grid));
-        throw new Error(`Invalid grid operation at (${row}, ${col}) in table #${grid.tableID}`);
+        throw new Error(`Invalid grid operation: row=${row}, col=${col}`, grid);
     }
     return true;
 }
