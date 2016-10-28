@@ -1,3 +1,0 @@
-let l:bm_file_version = 1
-let l:bm_sessions = {'default': {'/Users/crasmussen/projects/repoman/unittest/tasks/test_repository.py': [{'sign_idx': 9538, 'line_nr': 404, 'content': '    def test_updateTOCWithBrokenCache(self, mockLogWarning):'},{'sign_idx': 9534, 'line_nr': 171, 'content': '    def test_updateTOC(self):'},{'sign_idx': 9539, 'line_nr': 409, 'content': ''},],'/Users/crasmussen/projects/repoman/tasks/repository.py': [{'sign_idx': 9535, 'line_nr': 265, 'content': '                project.s9id, props)'},{'sign_idx': 9537, 'line_nr': 38, 'content': 'def updateTOC(s9id):'},{'sign_idx': 9536, 'line_nr': 18, 'content': 'log = logging.getLogger(''s9.%s'' % __file__)'},],}}
-let l:bm_current_session = 'default'
