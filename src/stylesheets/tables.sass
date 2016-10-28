@@ -1,4 +1,6 @@
-$arrow-size: 8px
+$arrow-size: 10px
+$arrow-border-color: #555
+$arrow-inactive-color: rgba(150, 150, 150, 0.3)
 
 .table-test
   border: 1px solid #444
@@ -16,9 +18,6 @@ $arrow-size: 8px
   th
     background: lightblue
 
-.hidden
-  display: none
-
 .arrow-container
   display: inline-block
   width: $arrow-size * 4
@@ -35,21 +34,34 @@ $arrow-size: 8px
   border-bottom: $arrow-size solid transparent
 
 .arrow-up
-  border-bottom: $arrow-size solid #2f2f2f
+  border-bottom: $arrow-size solid $arrow-border-color
   top: 0 - $arrow-size / 2
   left: $arrow-size * 1.5
 
+.arrow-up.inactive
+  border-bottom-color: $arrow-inactive-color
+
 .arrow-down
-  border-top: $arrow-size solid #f00
+  border-top: $arrow-size solid $arrow-border-color
   top: $arrow-size * 3.5
   left: $arrow-size * 1.5
 
+.arrow-down.inactive
+  border-top-color: $arrow-inactive-color
+
 .arrow-right
-  border-left: $arrow-size solid green
+  border-left: $arrow-size solid $arrow-border-color
   top: $arrow-size * 1.5
   left: $arrow-size * 3.5
 
+.arrow-right.inactive
+  border-left-color: $arrow-inactive-color
+
 .arrow-left
-  border-right: $arrow-size solid blue 
+  border-right: $arrow-size solid $arrow-border-color 
   top: $arrow-size * 1.5
   left: 0 - $arrow-size / 2
+
+.arrow-left.inactive
+  border-right-color: $arrow-inactive-color 
+

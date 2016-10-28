@@ -18,7 +18,12 @@ export default class TableMerge {
     }
 
     annotateCell(el){
-        const html = `<div class="arrow arrow-up"></div> <div class="arrow arrow-down"></div> <div class="arrow arrow-left"></div> <div class="arrow arrow-right"></div>`
+        const html = `
+                        <div class="arrow arrow-up"></div>
+                        <div class="arrow arrow-down"></div>
+                        <div class="arrow arrow-left"></div>
+                        <div class="arrow arrow-right"></div>
+                     `
         const container = document.createElement('div');
         container.classList.add('arrow-container');
         container.innerHTML = html;
@@ -33,9 +38,10 @@ export default class TableMerge {
             const selector = `.arrow-${direction.toLowerCase()}`;
             const arrowEl = el.querySelector(selector);
             console.assert(arrowEl);
-            arrowEl.dataset.operation = operation;
             if (!operations[operation]){
-                arrowEl.classList.add('hidden');
+                arrowEl.classList.add('inactive');
+            } else {
+                arrowEl.dataset.operation = operation;
             }
         });
     }
