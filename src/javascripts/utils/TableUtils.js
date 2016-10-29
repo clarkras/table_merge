@@ -40,7 +40,7 @@ export function operations(grid, el){
 /**
  * Returns [row, col].
  */
-function findCell(grid, el){
+export function findCell(grid, el){
     for (let row = 0; row < grid.length; row++){
         for (let col = 0; col < grid[row].length; col++){
             if (grid[row][col].el === el) return [row, col];
@@ -56,8 +56,8 @@ function canMergeLeft(grid, row, col){
     const left = grid[row][col - 1];
 
     if (cell.rowSpan === left.rowSpan){
-        const anchor = grid[row][col - left.colSpan];
-        if (anchor.el) return true;
+        const origin = grid[row][col - left.colSpan];
+        if (origin.el) return true;
     }
 
     return false;
@@ -80,8 +80,8 @@ function canMergeUp(grid, row, col){
     const above = grid[row - 1][col];
 
     if (cell.colSpan === above.colSpan){
-        const anchor = grid[row - above.rowSpan][col];
-        if (anchor.el) return true;
+        const origin = grid[row - above.rowSpan][col];
+        if (origin.el) return true;
     }
 
     return false;
