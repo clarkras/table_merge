@@ -1,10 +1,66 @@
 <h3>Tables used in the unit tests</h3>
-<table id="unit-test" class="table-test">
+<table id="no-spans" class="table-test">
     <caption>No spans</caption>
     <tr>
         <td>A1</td> <td>A2</td> <td>A3</td>
     </tr>
     <tr>
         <td>B1</td> <td>B2</td> <td>B3</td>
+    </tr>
+</table>
+
+<table id="single-colspan-top-left" class="table-test">
+    <caption>single colspan top left</caption>
+    <tr>
+        <td colspan="2">A1, A2</td> <td>A3</td>
+    </tr>
+    <tr>
+        <td>B1</td> <td>B2</td> <td>B3</td>
+    </tr>
+</table>
+
+<table id="single-colspan-top-right" class="table-test">
+    <caption>single colspan top right</caption>
+    <tr>
+      <td>A1</td><td colspan="2">A2, A3</td>
+    </tr>
+    <tr>
+      <td>B1</td><td>B2</td><td>B3</td>
+    </tr>
+</table>
+
+<table id="single-rowspan" class="table-test">
+    <caption>single rowspan</caption>
+    <tr>
+        <td rowspan="2">A1<br/>B1</td> <td>A2</td> <td>A3</td>
+    </tr>
+    <tr>
+        <td>B2</td> <td>B3</td>
+    </tr>
+</table>
+
+<table id="rowspan-above" class="table-test">
+    <caption>rowspan above</caption>
+    <tr>
+        <td rowspan="2">A1<br/> B1</td> <td>A2</td>
+    </tr>
+    <tr>
+        <td>B2</td>
+    </tr>
+    <tr>
+        <td>C1</td> <td>C2</td>
+    </tr>
+</table>
+
+<table id="colspan-and-rowspan" class="table-test">
+    <caption>colspan and rowspan</caption>
+    <tr>
+        <td colspan="2" rowspan="2">A1, A2<br/>B1, B2</td> <td>A3</td>
+    </tr>
+    <tr>
+        <td>B3</td>
+    </tr>
+    <tr>
+        <td>C1</td> <td>C2</td> <td>C3</td>
     </tr>
 </table>

@@ -154,15 +154,7 @@ describe('TableUtils', () => {
     describe('single colspan top right', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = `
-                    <tr>
-                      <td>A1</td><td colspan="2">A2, A3</td>
-                    </tr>
-                    <tr>
-                      <td>B1</td><td>B2</td><td>B3</td>
-                    </tr>
-                `;
-
+            tableEl.innerHTML = TABLE_HTML['single colspan top right'];
             grid = TableUtils.buildTableMap(tableEl);
         });
 
@@ -244,15 +236,7 @@ describe('TableUtils', () => {
     describe('single rowspan', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = `
-                    <tr>
-                        <td rowspan="2">A1</td> <td>A2</td> <td>A3</td>
-                    </tr>
-                    <tr>
-                        <td>B2</td> <td>B3</td>
-                    </tr>
-                `;
-
+            tableEl.innerHTML = TABLE_HTML['single rowspan'];
             grid = TableUtils.buildTableMap(tableEl);
         });
 
@@ -297,20 +281,44 @@ describe('TableUtils', () => {
         });
     });
 
+    describe('rowspan above', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = TABLE_HTML['rowspan above'];
+            grid = TableUtils.buildTableMap(tableEl);
+        });
+
+        it('builds a map', () => {
+            let log = TableUtils.logGrid(grid);
+            assert.equal(log[0], '2,1,TD 1,1,TD');
+            assert.equal(log[1], '2,1,-- 1,1,TD');
+            assert.equal(log[2], '1,1,TD 1,1,TD');
+        });
+
+        it('#operations(2, 0)', () => {
+            const operations = TableUtils.operations(grid, grid[2][0].el);
+
+            const expected = {
+                mergeLeft: false,
+                mergeRight: true,
+                mergeUp: true,
+                mergeDown: false,
+                insertLeft: true,
+                insertRight: true,
+                insertAbove: true,
+                insertBelow: true,
+            };
+
+            assert.deepEqual(operations, expected);
+        });
+
+    });
+
+
     describe('colspan and rowspan', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = `
-                    <tr>
-                        <td colspan="2" rowspan="2">A1, A2</td> <td>A3</td>
-                    </tr>
-                    <tr>
-                        <td>B3</td>
-                    </tr>
-                    <tr>
-                        <td>C1</td> <td>C2</td> <td>C3</td>
-                    </tr>
-                `;
+            tableEl.innerHTML = TABLE_HTML['colspan and rowspan'];
             grid = TableUtils.buildTableMap(tableEl);
         });
 
@@ -391,5 +399,42 @@ const TABLE_HTML = {
             <td>B1</td> <td>B2</td> <td>B3</td>
         </tr>
     `,
-
+    'single colspan top right': `
+        <tr>
+          <td>A1</td><td colspan="2">A2, A3</td>
+        </tr>
+        <tr>
+          <td>B1</td><td>B2</td><td>B3</td>
+        </tr>
+    `,
+    'single rowspan': `
+        <tr>
+            <td rowspan="2">A1</td> <td>A2</td> <td>A3</td>
+        </tr>
+        <tr>
+            <td>B2</td> <td>B3</td>
+        </tr>
+    `,
+    'colspan and rowspan': `
+        <tr>
+            <td colspan="2" rowspan="2">A1, A2</td> <td>A3</td>
+        </tr>
+        <tr>
+            <td>B3</td>
+        </tr>
+        <tr>
+            <td>C1</td> <td>C2</td> <td>C3</td>
+        </tr>
+    `,
+    'rowspan above': `
+        <tr>
+            <td rowspan="2">A1 B1</td> <td>A2</td>
+        </tr>
+        <tr>
+            <td>B2</td>
+        </tr>
+        <tr>
+            <td>C1</td> <td>C2</td>
+        </tr>
+    `,
 };

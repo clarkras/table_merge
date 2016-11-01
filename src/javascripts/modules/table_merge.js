@@ -2,16 +2,26 @@ import * as DOMUtils from '../utils/DOMUtils.js'
 import * as TableMergeUtils from '../utils/TableMergeUtils.js'
 import * as TableUtils from '../utils/TableUtils'
 
+window.TableUtils = TableUtils;
+
 export default class TableMerge {
     constructor(container) {
-        this.annotateTables(container.querySelectorAll('.table-test'));
+        const tables = container.querySelectorAll('.table-test');
+        this.annotateTables(tables);
+        console.groupCollapsed('Tables');
+        Array.from(tables).forEach(t => {
+            console.groupCollapsed(t.id);
+            TableUtils.dumpTable(t);
+            console.groupEnd();
+            t.querySelector('caption').addEventListener('click', this.onClickCaption.bind(this));
+        });
+        console.groupEnd();
     }
 
     annotateTables(tables){
         Array.from(tables).forEach(t => {
             const cells = t.querySelectorAll('th, td');
             const grid = TableUtils.buildTableMap(t);
-            console.log('tableID:', grid.tableID);
             Array.from(cells).forEach(cell => {
                 this.annotateCell(cell);
                 this.setOperations(grid, cell);
@@ -48,6 +58,10 @@ export default class TableMerge {
         });
     }
 
+    onClickCaption(evt){
+        TableUtils.dumpTable(evt.target.parentElement);
+    }
+
     onClickMerge(evt){
         const operation = evt.target.dataset.operation;
         console.log('onClickMerge', operation);
@@ -57,6 +71,7 @@ export default class TableMerge {
         if (operation === 'mergeUp'){
             TableMergeUtils.mergeUp(grid, DOMUtils.getParent(evt.target, 'td, th'));
             this.annotateTables([table]);
+            TableUtils.dumpTable(table);
         }
         return false;
     }
