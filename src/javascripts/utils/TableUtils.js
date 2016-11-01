@@ -33,6 +33,7 @@ export function operations(grid, el){
         mergeRight: canMergeRight(grid, row, col),
         mergeUp: canMergeUp(grid, row, col),
         mergeDown: canMergeDown(grid, row, col),
+        unMerge: canUnMerge(grid, row, col),
         insertLeft: canInsertLeft(grid, col),
         insertRight: canInsertRight(grid, row, col),
         insertAbove: canInsertAbove(grid, row),
@@ -98,6 +99,11 @@ function canMergeDown(grid, row, col){
     } else {
         return canMergeUp(grid, belowRow, col);
     }
+}
+
+function canUnMerge(grid, row, col){
+    const el = grid[row][col].el;
+    return el.rowSpan > 1 || el.colSpan > 1;
 }
 
 function canInsertLeft(grid, col){

@@ -51,6 +51,37 @@ export function mergeDown(grid, sourceEl){
     // todo: remove empty row.
 }
 
+export function unMerge(grid, sourceEl){
+    const [row, col] = TableUtils.findCell(grid, sourceEl);
+    const colSpan = sourceEl.colSpan;
+
+    unMergeRow(sourceEl);
+
+    let rowEl = sourceEl.parentElement;
+    for (let i = 1; i < sourceEl.rowSpan; i++){
+        rowEl = rowEl.nextElementSibling;
+        const el = sourceEl.cloneNode(false);
+        el.colSpan = colSpan;
+        el.rowSpan = 1;
+        const nextSibling = grid[row + i][col + colSpan].el;
+        rowEl.insertBefore(el, nextSibling);
+        unMergeRow(el);
+    }
+
+    sourceEl.rowSpan = 1;
+}
+
+function unMergeRow(sourceEl){
+    for (let i = 1; i < sourceEl.colSpan; i++){
+        const el = sourceEl.cloneNode(false);
+        el.colSpan = 1;
+        el.rowSpan = 1;
+        sourceEl.parentElement.insertBefore(el, sourceEl.nextElementSibling);
+    }
+
+    sourceEl.colSpan = 1;
+}
+
 /**
  * Remove empty rows and columns.
  */

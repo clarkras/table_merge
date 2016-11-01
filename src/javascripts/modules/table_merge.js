@@ -35,6 +35,7 @@ export default class TableMerge {
                         <div class="arrow arrow-down"></div>
                         <div class="arrow arrow-left"></div>
                         <div class="arrow arrow-right"></div>
+                        <div class="arrow arrow-unmerge"><image src="/images/unMerge.png"/></div>
                      `
         const container = el.querySelector('.arrow-container') || document.createElement('div');
         container.classList.add('arrow-container');
@@ -56,6 +57,13 @@ export default class TableMerge {
                 arrowEl.dataset.operation = operation;
             }
         });
+        const arrowEl = el.querySelector('.arrow-unmerge');
+        console.assert(arrowEl);
+        if (operations.unMerge){
+            arrowEl.dataset.operation = 'unMerge';
+        } else {
+            arrowEl.classList.add('inactive');
+        }
     }
 
     onClickCaption(evt){
@@ -63,7 +71,8 @@ export default class TableMerge {
     }
 
     onClickMerge(evt){
-        const operation = evt.target.dataset.operation;
+        const operation = evt.target.dataset.operation ||
+                evt.target.parentElement.dataset.operation;
         console.log('onClickMerge', operation);
         const table = DOMUtils.getParent(evt.target, 'table');
         if (!table) return;   // why does this happen?
