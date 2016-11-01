@@ -1,20 +1,54 @@
 import * as TableUtils from '../utils/TableUtils'
 
-export function mergeUp(grid, targetEl){
-    const [row, col] = TableUtils.findCell(grid, targetEl);
+export function mergeLeft(grid, sourceEl){
+    const [row, col] = TableUtils.findCell(grid, sourceEl);
+    const destCol = col - grid[row][col - 1].colSpan;
+    const destEl = grid[row][destCol].el;
 
-    // Find the origin of the cell above.
-    const originRow = row - grid[row - 1][col].rowSpan;
-    const origin = grid[originRow][col];
+    sourceEl.colSpan += destEl.colSpan;
+    destEl.outerHTML = sourceEl.outerHTML;
 
-    console.log('origin', origin.el.textContent.trim());
+    const rowEl = sourceEl.parentElement;
+    rowEl.removeChild(sourceEl);
+}
 
-    origin.rowSpan++;
-    origin.el.rowSpan++;
-    origin.el.innerHTML = targetEl.innerHTML;
-    targetEl.parentElement.removeChild(targetEl);
-    // TODO: clean(targetEl.parentElement);
-    grid[row][col].el = null;
+export function mergeRight(grid, sourceEl){
+    const [row, col] = TableUtils.findCell(grid, sourceEl);
+    const destCol = col + grid[row][col].colSpan;
+    const destEl = grid[row][destCol].el;
+
+    sourceEl.colSpan += destEl.colSpan;
+
+    const rowEl = destEl.parentElement;
+    rowEl.removeChild(destEl);
+}
+
+export function mergeUp(grid, sourceEl){
+    const [row, col] = TableUtils.findCell(grid, sourceEl);
+    const destRow = row - grid[row - 1][col].rowSpan;
+    const destEl = grid[destRow][col].el;
+
+    sourceEl.rowSpan += destEl.rowSpan;
+    destEl.outerHTML = sourceEl.outerHTML;
+    const rowEl = sourceEl.parentElement;
+    rowEl.removeChild(sourceEl);
+    if (rowEl.children.length === 0){
+        // This doesn't work because you have to adjust the rowSpan values
+        // of the rows above.
+        // rowEl.parentElement.removeChild(rowEl);
+    }
+    // TODO: clean(sourceEl.parentElement);
+}
+
+export function mergeDown(grid, sourceEl){
+    const [row, col] = TableUtils.findCell(grid, sourceEl);
+    const destRow = row + grid[row][col].rowSpan;
+    const destEl = grid[destRow][col].el;
+
+    sourceEl.rowSpan += destEl.rowSpan;
+    const rowEl = destEl.parentElement;
+    rowEl.removeChild(destEl);
+    // todo: remove empty row.
 }
 
 /**

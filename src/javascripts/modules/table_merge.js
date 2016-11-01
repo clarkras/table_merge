@@ -68,8 +68,8 @@ export default class TableMerge {
         const table = DOMUtils.getParent(evt.target, 'table');
         if (!table) return;   // why does this happen?
         const grid = TableUtils.buildTableMap(table);
-        if (operation === 'mergeUp'){
-            TableMergeUtils.mergeUp(grid, DOMUtils.getParent(evt.target, 'td, th'));
+        if (TableMergeUtils.hasOwnProperty(operation)){
+            TableMergeUtils[operation](grid, DOMUtils.getParent(evt.target, 'td, th'));
             this.annotateTables([table]);
             TableUtils.dumpTable(table);
         }
