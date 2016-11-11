@@ -35,7 +35,7 @@ export default class TableMerge {
                         <div class="arrow arrow-down"></div>
                         <div class="arrow arrow-left"></div>
                         <div class="arrow arrow-right"></div>
-                        <div class="arrow arrow-unmerge"><image src="/images/unMerge.png"/></div>
+                        <div class="arrow arrow-unmerge"><img src="/images/unMerge.png"/></div>
                      `
         const container = el.querySelector('.arrow-container') || document.createElement('div');
         container.classList.add('arrow-container');
@@ -60,7 +60,7 @@ export default class TableMerge {
         const arrowEl = el.querySelector('.arrow-unmerge');
         console.assert(arrowEl);
         if (operations.unMerge){
-            arrowEl.dataset.operation = 'unMerge';
+            arrowEl.querySelector('img').dataset.operation = 'unMerge';
         } else {
             arrowEl.classList.add('inactive');
         }

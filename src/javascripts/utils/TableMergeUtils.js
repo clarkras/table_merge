@@ -1,26 +1,16 @@
 import * as TableUtils from '../utils/TableUtils'
 
 export function mergeLeft(grid, sourceEl){
-    const [row, col] = TableUtils.findCell(grid, sourceEl);
-    const destCol = col - grid[row][col - 1].colSpan;
-    const destEl = grid[row][destCol].el;
-
+    const destEl = sourceEl.previousElementSibling;
+    sourceEl.parentElement.removeChild(sourceEl);
+    destEl.parentElement.replaceChild(sourceEl, destEl);
     sourceEl.colSpan += destEl.colSpan;
-    destEl.outerHTML = sourceEl.outerHTML;
-
-    const rowEl = sourceEl.parentElement;
-    rowEl.removeChild(sourceEl);
 }
 
 export function mergeRight(grid, sourceEl){
-    const [row, col] = TableUtils.findCell(grid, sourceEl);
-    const destCol = col + grid[row][col].colSpan;
-    const destEl = grid[row][destCol].el;
-
+    const destEl = sourceEl.nextElementSibling;
     sourceEl.colSpan += destEl.colSpan;
-
-    const rowEl = destEl.parentElement;
-    rowEl.removeChild(destEl);
+    destEl.parentElement.removeChild(destEl);
 }
 
 export function mergeUp(grid, sourceEl){
@@ -28,16 +18,10 @@ export function mergeUp(grid, sourceEl){
     const destRow = row - grid[row - 1][col].rowSpan;
     const destEl = grid[destRow][col].el;
 
+    sourceEl.parentElement.removeChild(sourceEl);
+    destEl.parentElement.replaceChild(sourceEl, destEl);
     sourceEl.rowSpan += destEl.rowSpan;
-    destEl.outerHTML = sourceEl.outerHTML;
-    const rowEl = sourceEl.parentElement;
-    rowEl.removeChild(sourceEl);
-    if (rowEl.children.length === 0){
-        // This doesn't work because you have to adjust the rowSpan values
-        // of the rows above.
-        // rowEl.parentElement.removeChild(rowEl);
-    }
-    // TODO: clean(sourceEl.parentElement);
+    // TODO: Remove empty row.
 }
 
 export function mergeDown(grid, sourceEl){
@@ -48,7 +32,7 @@ export function mergeDown(grid, sourceEl){
     sourceEl.rowSpan += destEl.rowSpan;
     const rowEl = destEl.parentElement;
     rowEl.removeChild(destEl);
-    // todo: remove empty row.
+    // TODO: Remove empty row.
 }
 
 export function unMerge(grid, sourceEl){
@@ -57,13 +41,16 @@ export function unMerge(grid, sourceEl){
 
     unMergeRow(sourceEl);
 
+    // Add an extra "safety" column to handle colSpans that go to the end of the row.
+    const safeGrid = grid.map(row => row.concat({el: null}));
+
     let rowEl = sourceEl.parentElement;
     for (let i = 1; i < sourceEl.rowSpan; i++){
         rowEl = rowEl.nextElementSibling;
         const el = sourceEl.cloneNode(false);
         el.colSpan = colSpan;
         el.rowSpan = 1;
-        const nextSibling = grid[row + i][col + colSpan].el;
+        const nextSibling = safeGrid[row + i][col + colSpan].el;
         rowEl.insertBefore(el, nextSibling);
         unMergeRow(el);
     }
@@ -71,6 +58,9 @@ export function unMerge(grid, sourceEl){
     sourceEl.rowSpan = 1;
 }
 
+/**
+ * Unmerges cells on a single row.
+ */
 function unMergeRow(sourceEl){
     for (let i = 1; i < sourceEl.colSpan; i++){
         const el = sourceEl.cloneNode(false);
@@ -80,11 +70,4 @@ function unMergeRow(sourceEl){
     }
 
     sourceEl.colSpan = 1;
-}
-
-/**
- * Remove empty rows and columns.
- */
-function clean(table){
-    throw Error('todo');
 }
