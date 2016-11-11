@@ -6,7 +6,8 @@ var path          = require('path')
 var testSrc = path.join(config.root.src, config.tasks.js.src, '/**/__tests__/*')
 
 var karmaConfig = {
-  frameworks: ['mocha', 'sinon-chai'],
+  // frameworks: ['mocha', 'sinon-chai'],
+  frameworks: ['jasmine'],
   files: [ testSrc ],
   preprocessors: {},
   webpack: webpackConfig('test'),

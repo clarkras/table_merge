@@ -31,33 +31,33 @@ describe('tables', () => {
         });
 
         it('is an HTMLTableElement instance', () => {
-            assert.instanceOf(table, HTMLTableElement);
+            expect(table instanceof HTMLTableElement);
         });
 
         it('table.rows is an HTMLCollection instance with 2 rows', () => {
-            assert.instanceOf(table.rows, HTMLCollection);
-            assert.equal(table.rows.length, 2);
+            expect(table.rows instanceof HTMLCollection);
+            expect(table.rows.length).toBe(2);
         });
 
         it('each row is an HTMLTableRowElement instances', () => {
             Array.from(table.rows).forEach(row => {
-                assert.instanceOf(row, HTMLTableRowElement);
+                expect(row instanceof HTMLTableRowElement);
             });
         });
 
         it('row.cells is an HTMLCollection of HTMLTableCellElement instances', () => {
             const row = table.rows[0];
-            assert.instanceOf(row.cells, HTMLCollection);
+            expect(row.cells instanceof HTMLCollection);
             Array.from(row.cells).forEach(cell => {
-                assert.instanceOf(cell, HTMLTableCellElement);
+                expect(cell instanceof HTMLTableCellElement);
             });
         });
 
         it('cells have rowSpan and colSpan properties', () => {
             const row = table.rows[0];
             Array.from(row.cells).forEach(cell => {
-                assert.equal(cell.rowSpan, 1);
-                assert.equal(cell.colSpan, 1);
+                expect(cell.rowSpan).toBe(1);
+                expect(cell.colSpan).toBe(1);
             });
         });
     });
@@ -82,7 +82,7 @@ describe('tables', () => {
         });
 
         it('table.rows includes the THEAD and TFOOT rows', () => {
-            assert.equal(table.rows.length, 3);
+            expect(table.rows.length).toBe(3);
         });
     });
 })

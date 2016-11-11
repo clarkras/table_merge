@@ -1,4 +1,3 @@
-import TableMerge from '../modules/table_merge'
 import * as TableUtils from '../utils/TableUtils'
 
 function operationsToString(expected, actual){
@@ -6,9 +5,9 @@ function operationsToString(expected, actual){
         operation    expected, actual
         mergeLeft:   ${expected.mergeLeft}, ${actual.mergeLeft},
         mergeRight:  ${expected.mergeRight}, ${actual.mergeRight},
-        mergeUp:     ${expected.mergeUp}, ${actual.mergeUp},
-        mergeDown:   ${expected.mergeDown}, ${actual.mergeDown},
-        unMerge:     ${expected.unMerge}, ${actual.unMerge}, 
+        mergeAbove:     ${expected.mergeAbove}, ${actual.mergeAbove},
+        mergeBelow:   ${expected.mergeBelow}, ${actual.mergeBelow},
+        unMerge:     ${expected.unMerge}, ${actual.unMerge},
         insertLeft:  ${expected.insertLeft}, ${actual.insertLeft},
         insertRight: ${expected.insertRight}, ${actual.insertRight},
         insertAbove: ${expected.insertAbove}, ${actual.insertAbove},
@@ -31,62 +30,135 @@ describe('TableUtils', () => {
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
 
-            assert.equal(log[0], '1,1,TD 1,1,TD 1,1,TD');
-            assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
-        it('#operations(0, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+        describe('target cell (0, 0)', () => {
+            it('#operations(0, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[0][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeUp: false,
-                mergeDown: true,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: true,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            assert.deepEqual(operations, expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeBelow', () => {
+                TableUtils.mergeBelow(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[2,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('--[2,1] TD[1,1] TD[1,1]');
+            });
+
+            it('#mergeRight', () => {
+                TableUtils.mergeRight(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(0, 1)', () => {
-            const operations = TableUtils.operations(grid, grid[0][1].el);
+        describe('target cell (0, 1)', () => {
+            it('#operations', () => {
+                const operations = TableUtils.operations(grid, grid[0][1].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: true,
-                mergeUp: false,
-                mergeDown: true,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: true,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            assert.deepEqual(operations, expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeLeft', () => {
+                TableUtils.mergeLeft(grid, grid[0][1].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
+
+            it('#mergeRight', () => {
+                TableUtils.mergeRight(grid, grid[0][1].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,2] --[1,2]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
+
+            it('#mergeBelow', () => {
+                TableUtils.mergeBelow(grid, grid[0][1].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[2,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] --[2,1] TD[1,1]');
+            });
         });
 
-        it('#operations(1, 2)', () => {
-            const operations = TableUtils.operations(grid, grid[1][2].el);
+        describe('target cell (1, 2)', () => {
+            it('#operations', () => {
+                const operations = TableUtils.operations(grid, grid[1][2].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: false,
-                mergeUp: true,
-                mergeDown: false,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: false,
+                    mergeAbove: true,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            assert.deepEqual(operations, expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeLeft', () => {
+                TableUtils.mergeLeft(grid, grid[1][2].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,2] --[1,2]');
+            });
+
+            it('#mergeAbove', () => {
+                TableUtils.mergeAbove(grid, grid[1][2].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[2,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
+
+                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
+            });
+
         });
     });
 
@@ -99,8 +171,8 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            assert.equal(log[0], '1,2,TD 1,2,-- 1,1,TD');
-            assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
+            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
         it('#operations(0, 0)', () => {
@@ -109,8 +181,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: true,
-                mergeUp: false,
-                mergeDown: false,   // s/b true
+                mergeAbove: false,
+                mergeBelow: false,   // s/b true
                 unMerge: true,
                 insertLeft: true,
                 insertRight: true,
@@ -118,7 +190,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(0, 2)', () => {
@@ -127,8 +199,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: true,
                 mergeRight: false,
-                mergeUp: false,
-                mergeDown: true,
+                mergeAbove: false,
+                mergeBelow: true,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: true,
@@ -136,7 +208,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(1, 1)', () => {
@@ -145,8 +217,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: true,
                 mergeRight: true,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: false,
                 insertRight: true,
@@ -154,7 +226,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
     });
 
@@ -167,8 +239,8 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            assert.equal(log[0], '1,1,TD 1,2,TD 1,2,--');
-            assert.equal(log[1], '1,1,TD 1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[1,1] TD[1,2] --[1,2]');
+            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
         it('#operations(0, 0)', () => {
@@ -177,8 +249,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: true,
-                mergeUp: false,
-                mergeDown: true,
+                mergeAbove: false,
+                mergeBelow: true,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: true,
@@ -186,7 +258,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(0, 1)', () => {
@@ -195,8 +267,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: true,
                 mergeRight: false,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: true,
                 insertLeft: true,
                 insertRight: true,
@@ -204,7 +276,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(1, 1)', () => {
@@ -213,8 +285,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: true,
                 mergeRight: true,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: false,
@@ -222,7 +294,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(1, 2)', () => {
@@ -231,8 +303,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: true,
                 mergeRight: false,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: false,
                 insertRight: true,
@@ -240,7 +312,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
     });
 
@@ -253,8 +325,8 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            assert.equal(log[0], '2,1,TD 1,1,TD 1,1,TD');
-            assert.equal(log[1], '2,1,-- 1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[2,1] TD[1,1] TD[1,1]');
+            expect(log[1]).toBe('--[2,1] TD[1,1] TD[1,1]');
         });
 
         it('#operations(0, 0)', () => {
@@ -263,8 +335,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: false,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: true,
                 insertLeft: true,
                 insertRight: true,
@@ -272,7 +344,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(1, 1)', () => {
@@ -281,8 +353,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: true,
-                mergeUp: true,
-                mergeDown: false,
+                mergeAbove: true,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: true,
@@ -290,7 +362,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
     });
 
@@ -303,9 +375,9 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            assert.equal(log[0], '2,1,TD 1,1,TD');
-            assert.equal(log[1], '2,1,-- 1,1,TD');
-            assert.equal(log[2], '1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[2,1] TD[1,1]');
+            expect(log[1]).toBe('--[2,1] TD[1,1]');
+            expect(log[2]).toBe('TD[1,1] TD[1,1]');
         });
 
         it('#operations(2, 0)', () => {
@@ -314,8 +386,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: true,
-                mergeUp: true,
-                mergeDown: false,
+                mergeAbove: true,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: true,
@@ -323,11 +395,10 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
     });
-
 
     describe('colspan and rowspan', () => {
         beforeEach(() => {
@@ -338,9 +409,9 @@ describe('TableUtils', () => {
 
         it('builds a map', () => {
             let log = TableUtils.logGrid(grid);
-            assert.equal(log[0], '2,2,TD 2,2,-- 1,1,TD');
-            assert.equal(log[1], '2,2,-- 2,2,-- 1,1,TD');
-            assert.equal(log[2], '1,1,TD 1,1,TD 1,1,TD');
+            expect(log[0]).toBe('TD[2,2] --[2,2] TD[1,1]');
+            expect(log[1]).toBe('--[2,2] --[2,2] TD[1,1]');
+            expect(log[2]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
         it('#operations(0, 0)', () => {
@@ -349,8 +420,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: false,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: true,
                 insertLeft: true,
                 insertRight: true,
@@ -358,7 +429,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(1, 2)', () => {
@@ -367,8 +438,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: false,
-                mergeUp: true,
-                mergeDown: true,
+                mergeAbove: true,
+                mergeBelow: true,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: true,
@@ -376,7 +447,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
 
         it('#operations(2, 0)', () => {
@@ -385,8 +456,8 @@ describe('TableUtils', () => {
             const expected = {
                 mergeLeft: false,
                 mergeRight: true,
-                mergeUp: false,
-                mergeDown: false,
+                mergeAbove: false,
+                mergeBelow: false,
                 unMerge: false,
                 insertLeft: true,
                 insertRight: false,
@@ -394,7 +465,7 @@ describe('TableUtils', () => {
                 insertBelow: true,
             };
 
-            assert.deepEqual(operations, expected);
+            expect(operations).toEqual(expected);
         });
     });
 });
