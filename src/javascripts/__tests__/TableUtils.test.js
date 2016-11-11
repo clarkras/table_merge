@@ -154,11 +154,7 @@ describe('TableUtils', () => {
 
                 expect(log[0]).toBe('TD[1,1] TD[1,1] TD[2,1]');
                 expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
-
-                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
             });
-
         });
     });
 
@@ -175,58 +171,91 @@ describe('TableUtils', () => {
             expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
-        it('#operations(0, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+        describe('target cell (0, 0)', () => {
+            it('#operations(0, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[0][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeAbove: false,
-                mergeBelow: false,   // s/b true
-                unMerge: true,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: true,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeRight', () => {
+                TableUtils.mergeRight(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
+
+            it('#unMerge', () => {
+                TableUtils.unMerge(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(0, 2)', () => {
-            const operations = TableUtils.operations(grid, grid[0][2].el);
+        describe('target cell (0, 2)', () => {
+            it('#operations(0, 2)', () => {
+                const operations = TableUtils.operations(grid, grid[0][2].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: false,
-                mergeAbove: false,
-                mergeBelow: true,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: false,
+                    mergeAbove: false,
+                    mergeBelow: true,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeLeft', () => {
+                TableUtils.mergeLeft(grid, grid[0][2].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(1, 1)', () => {
-            const operations = TableUtils.operations(grid, grid[1][1].el);
+        describe('target cell (1, 1)', () => {
+            it('#operations(1, 1)', () => {
+                const operations = TableUtils.operations(grid, grid[1][1].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: true,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: false,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: false,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
     });
 
@@ -243,76 +272,111 @@ describe('TableUtils', () => {
             expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
-        it('#operations(0, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+        describe('target cell (0, 0)', () => {
+            it('#operations(0, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[0][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeAbove: false,
-                mergeBelow: true,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: true,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeRight', () => {
+                TableUtils.mergeRight(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(0, 1)', () => {
-            const operations = TableUtils.operations(grid, grid[0][1].el);
+        describe('target cell (0, 1)', () => {
+            it('#operations(0, 1)', () => {
+                const operations = TableUtils.operations(grid, grid[0][1].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: false,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: true,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: false,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: true,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeLeft', () => {
+                TableUtils.mergeLeft(grid, grid[0][1].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
+
+            it('#unMerge', () => {
+                TableUtils.unMerge(grid, grid[0][1].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(1, 1)', () => {
-            const operations = TableUtils.operations(grid, grid[1][1].el);
+        describe('target cell (1, 1)', () => {
+            it('#operations(1, 1)', () => {
+                const operations = TableUtils.operations(grid, grid[1][1].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: true,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: false,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: false,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
 
-        it('#operations(1, 2)', () => {
-            const operations = TableUtils.operations(grid, grid[1][2].el);
+        describe('target cell (1, 2)', () => {
+            it('#operations(1, 2)', () => {
+                const operations = TableUtils.operations(grid, grid[1][2].el);
 
-            const expected = {
-                mergeLeft: true,
-                mergeRight: false,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: false,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: true,
+                    mergeRight: false,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: false,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
     });
 
@@ -329,40 +393,53 @@ describe('TableUtils', () => {
             expect(log[1]).toBe('--[2,1] TD[1,1] TD[1,1]');
         });
 
-        it('#operations(0, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+        describe('target cell (0, 0)', () => {
+            it('#operations(0, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[0][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: false,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: true,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: false,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: true,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#unMerge', () => {
+                TableUtils.unMerge(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(1, 1)', () => {
-            const operations = TableUtils.operations(grid, grid[1][1].el);
+        describe('target cell (1, 1)', () => {
+            it('#operations(1, 1)', () => {
+                const operations = TableUtils.operations(grid, grid[1][1].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeAbove: true,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: false,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: true,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: false,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
     });
 
@@ -380,24 +457,35 @@ describe('TableUtils', () => {
             expect(log[2]).toBe('TD[1,1] TD[1,1]');
         });
 
-        it('#operations(2, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[2][0].el);
+        describe('target cell (2, 0)', () => {
+            it('#operations(2, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[2][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeAbove: true,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: true,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#mergeAbove', () => {
+                TableUtils.mergeAbove(grid, grid[2][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[3,1] TD[1,1]');
+                expect(log[1]).toBe('--[3,1] TD[1,1]');
+                expect(log[2]).toBe('--[3,1] TD[1,1]');
+            });
         });
-
     });
 
     describe('colspan and rowspan', () => {
@@ -414,58 +502,74 @@ describe('TableUtils', () => {
             expect(log[2]).toBe('TD[1,1] TD[1,1] TD[1,1]');
         });
 
-        it('#operations(0, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[0][0].el);
+        describe('target cell (0, 0)', () => {
+            it('#operations(0, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[0][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: false,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: true,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: false,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: true,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
+
+            it('#unMerge', () => {
+                TableUtils.unMerge(grid, grid[0][0].el);
+
+                let log = TableUtils.logGrid(TableUtils.buildTableMap(tableEl));
+
+                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(log[2]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+            });
         });
 
-        it('#operations(1, 2)', () => {
-            const operations = TableUtils.operations(grid, grid[1][2].el);
+        describe('target cell (1, 2)', () => {
+            it('#operations(1, 2)', () => {
+                const operations = TableUtils.operations(grid, grid[1][2].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: false,
-                mergeAbove: true,
-                mergeBelow: true,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: true,
-                insertAbove: false,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: false,
+                    mergeAbove: true,
+                    mergeBelow: true,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: true,
+                    insertAbove: false,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
 
-        it('#operations(2, 0)', () => {
-            const operations = TableUtils.operations(grid, grid[2][0].el);
+        describe('target cell (2, 0)', () => {
+            it('#operations(2, 0)', () => {
+                const operations = TableUtils.operations(grid, grid[2][0].el);
 
-            const expected = {
-                mergeLeft: false,
-                mergeRight: true,
-                mergeAbove: false,
-                mergeBelow: false,
-                unMerge: false,
-                insertLeft: true,
-                insertRight: false,
-                insertAbove: true,
-                insertBelow: true,
-            };
+                const expected = {
+                    mergeLeft: false,
+                    mergeRight: true,
+                    mergeAbove: false,
+                    mergeBelow: false,
+                    unMerge: false,
+                    insertLeft: true,
+                    insertRight: false,
+                    insertAbove: true,
+                    insertBelow: true,
+                };
 
-            expect(operations).toEqual(expected);
+                expect(operations).toEqual(expected);
+            });
         });
     });
 });
