@@ -1,5 +1,5 @@
 import * as DOMUtils from '../utils/DOMUtils.js'
-import * as TableMergeUtils from '../utils/TableMergeUtils.js'
+import * as TableMergeUtils from '../utils/TableUtils.js'
 import * as TableUtils from '../utils/TableUtils'
 
 window.TableUtils = TableUtils;
