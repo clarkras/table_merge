@@ -18,28 +18,13 @@ function operationsToString(expected, actual){
 }
 
 /**
- * Returns an array of strings that represent rows in the grid.
- * Each cell has the form: tagName[rowspan,colspan]. The tagName
- * is '--' if the cell is a virtual cell (from a rowspan or colspan).
- *
- * Example:
- *
- *  [
- *   'TD[2,1] TD[1,1]',
- *   '--[2,1] TD[1,1]',
- *   'TD[1,1] TD[1,1]'
- *  ]
+ * Utility function to squash the whitespace from the inner HTML of an element.
  */
-function logGrid(grid){
-    return grid.map((row) => {
-        return row.map((cell) => {
-            const tagName = cell.el && cell.el.tagName ? cell.el.tagName : '--';
-            return `${tagName}[${cell.rowSpan},${cell.colSpan}]`;
-        }).join(' ');
-    });
+function serializeInnerElement(el){
+    return el.innerHTML.replace(/\s{2,}/g, '');
 }
 
-describe('TableUtils', () => {
+describe('Utilities:TableUtils', () => {
     let tableEl, grid;
 
     describe('no spans', () => {
@@ -49,15 +34,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-
-            expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (0, 0)', () => {
-            it('#operations(0, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][0].el);
 
                 expect(operations).toEqual({
@@ -76,19 +54,23 @@ describe('TableUtils', () => {
             it('#mergeBelow', () => {
                 TableUtils.mergeBelow(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[2,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('--[2,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td rowspan="2">A1</td><td>A2</td><td>A3</td></tr>' +
+                    '<tr><td>B2</td><td>B3</td></tr>'
+                );
             });
 
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="2">A1</td><td>A3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
@@ -112,28 +94,34 @@ describe('TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][1].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="2">A2</td><td>A3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
 
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][1].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,2] --[1,2]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td>A1</td><td colspan="2">A2</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
 
             it('#mergeBelow', () => {
                 TableUtils.mergeBelow(grid, grid[0][1].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[2,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] --[2,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td>A1</td><td rowspan="2">A2</td><td>A3</td></tr>' +
+                    '<tr><td>B1</td><td>B3</td></tr>'
+                );
             });
         });
 
@@ -157,19 +145,23 @@ describe('TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[1][2].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,2] --[1,2]');
+                expect(html).toBe(
+                    '<tr><td>A1</td><td>A2</td><td>A3</td></tr>' +
+                    '<tr><td>B1</td><td colspan="2">B3</td></tr>'
+                );
             });
 
             it('#mergeAbove', () => {
                 TableUtils.mergeAbove(grid, grid[1][2].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[2,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] --[2,1]');
+                expect(html).toBe(
+                    '<tr><td>A1</td><td>A2</td><td rowspan="2">B3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td></tr>'
+                );
             });
         });
     });
@@ -181,14 +173,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-            expect(log[0]).toBe('TD[1,2] --[1,2] TD[1,1]');
-            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (0, 0)', () => {
-            it('#operations(0, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][0].el);
 
                 expect(operations).toEqual({
@@ -207,24 +193,29 @@ describe('TableUtils', () => {
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="3">A1, A2</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
 
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toMatch(
+                    '<tr><td colspan="1" rowspan="1">A1, A2</td><td colspan="1" ' +
+                    'data-uuid="[a-h0-9]{32}" rowspan="1"></td><td>A3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
         describe('target cell (0, 2)', () => {
-            it('#operations(0, 2)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][2].el);
 
                 expect(operations).toEqual({
@@ -243,15 +234,17 @@ describe('TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][2].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="3">A3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
         describe('target cell (1, 1)', () => {
-            it('#operations(1, 1)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[1][1].el);
 
                 expect(operations).toEqual({
@@ -276,14 +269,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-            expect(log[0]).toBe('TD[1,1] TD[1,2] --[1,2]');
-            expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (0, 0)', () => {
-            it('#operations(0, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][0].el);
 
                 expect(operations).toEqual({
@@ -302,15 +289,17 @@ describe('TableUtils', () => {
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="3">A1</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
         describe('target cell (0, 1)', () => {
-            it('#operations(0, 1)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][1].el);
 
                 expect(operations).toEqual({
@@ -329,24 +318,29 @@ describe('TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][1].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,3] --[1,3] --[1,3]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td colspan="3">A2, A3</td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
 
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][1].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toMatch(
+                    '<tr><td>A1</td><td colspan="1" rowspan="1">A2, A3</td><td colspan="1" ' +
+                    'data-uuid="[a-h0-9]{32}" rowspan="1"></td></tr>' +
+                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
         describe('target cell (1, 1)', () => {
-            it('#operations(1, 1)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[1][1].el);
 
                 expect(operations).toEqual({
@@ -364,7 +358,7 @@ describe('TableUtils', () => {
         });
 
         describe('target cell (1, 2)', () => {
-            it('#operations(1, 2)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[1][2].el);
 
                 expect(operations).toEqual({
@@ -389,14 +383,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-            expect(log[0]).toBe('TD[2,1] TD[1,1] TD[1,1]');
-            expect(log[1]).toBe('--[2,1] TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (0, 0)', () => {
-            it('#operations(0, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][0].el);
 
                 expect(operations).toEqual({
@@ -415,15 +403,18 @@ describe('TableUtils', () => {
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toMatch(
+                    '<tr><td rowspan="1" colspan="1">A1</td><td>A2</td><td>A3</td></tr>' +
+                    '<tr><td rowspan="1" colspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                    '<td>B2</td><td>B3</td></tr>'
+                );
             });
         });
 
         describe('target cell (1, 1)', () => {
-            it('#operations(1, 1)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[1][1].el);
 
                 expect(operations).toEqual({
@@ -448,15 +439,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-            expect(log[0]).toBe('TD[2,1] TD[1,1]');
-            expect(log[1]).toBe('--[2,1] TD[1,1]');
-            expect(log[2]).toBe('TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (2, 0)', () => {
-            it('#operations(2, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[2][0].el);
 
                 expect(operations).toEqual({
@@ -475,11 +459,13 @@ describe('TableUtils', () => {
             it('#mergeAbove', () => {
                 TableUtils.mergeAbove(grid, grid[2][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[3,1] TD[1,1]');
-                expect(log[1]).toBe('--[3,1] TD[1,1]');
-                expect(log[2]).toBe('--[3,1] TD[1,1]');
+                expect(html).toBe(
+                    '<tr><td rowspan="3">C1</td><td>A2</td></tr>' +
+                    '<tr><td>B2</td></tr>' +
+                    '<tr><td>C2</td></tr>'
+                );
             });
         });
     });
@@ -491,15 +477,8 @@ describe('TableUtils', () => {
             grid = TableUtils.createTableGrid(tableEl);
         });
 
-        it('creates a grid', () => {
-            const log = logGrid(grid);
-            expect(log[0]).toBe('TD[2,2] --[2,2] TD[1,1]');
-            expect(log[1]).toBe('--[2,2] --[2,2] TD[1,1]');
-            expect(log[2]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-        });
-
         describe('target cell (0, 0)', () => {
-            it('#operations(0, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[0][0].el);
 
                 expect(operations).toEqual({
@@ -518,16 +497,30 @@ describe('TableUtils', () => {
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const log = logGrid(TableUtils.createTableGrid(tableEl));
+                const html = serializeInnerElement(tableEl.tBodies[0]);
 
-                expect(log[0]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[1]).toBe('TD[1,1] TD[1,1] TD[1,1]');
-                expect(log[2]).toBe('TD[1,1] TD[1,1] TD[1,1]');
+                expect(html).toMatch(
+                    '<tr>' +
+                        '<td colspan="1" rowspan="1">A1, A2</td>' +
+                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                        '<td>A3</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                        '<td>B3</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                        '<td>C1</td>' +
+                        '<td>C2</td>' +
+                        '<td>C3</td>' +
+                    '</tr>'
+                );
             });
         });
 
         describe('target cell (1, 2)', () => {
-            it('#operations(1, 2)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[1][2].el);
 
                 expect(operations).toEqual({
@@ -545,7 +538,7 @@ describe('TableUtils', () => {
         });
 
         describe('target cell (2, 0)', () => {
-            it('#operations(2, 0)', () => {
+            it('#operations', () => {
                 const operations = TableUtils.operations(grid, grid[2][0].el);
 
                 expect(operations).toEqual({
@@ -567,18 +560,18 @@ describe('TableUtils', () => {
 const TABLE_HTML = {
     'no spans': `
         <tr>
-            <td>A1</td> <td>A2</td> <td>A3</td>
+            <td>A1</td><td>A2</td><td>A3</td>
         </tr>
         <tr>
-            <td>B1</td> <td>B2</td> <td>B3</td>
+            <td>B1</td><td>B2</td><td>B3</td>
         </tr>
     `,
     'single colspan top left': `
         <tr>
-            <td colspan="2">A1, A2</td> <td>A3</td>
+            <td colspan="2">A1, A2</td><td>A3</td>
         </tr>
         <tr>
-            <td>B1</td> <td>B2</td> <td>B3</td>
+            <td>B1</td><td>B2</td><td>B3</td>
         </tr>
     `,
     'single colspan top right': `
@@ -591,32 +584,32 @@ const TABLE_HTML = {
     `,
     'single rowspan': `
         <tr>
-            <td rowspan="2">A1</td> <td>A2</td> <td>A3</td>
+            <td rowspan="2">A1</td><td>A2</td><td>A3</td>
         </tr>
         <tr>
-            <td>B2</td> <td>B3</td>
+            <td>B2</td><td>B3</td>
         </tr>
     `,
     'colspan and rowspan': `
         <tr>
-            <td colspan="2" rowspan="2">A1, A2</td> <td>A3</td>
+            <td colspan="2" rowspan="2">A1, A2</td><td>A3</td>
         </tr>
         <tr>
             <td>B3</td>
         </tr>
         <tr>
-            <td>C1</td> <td>C2</td> <td>C3</td>
+            <td>C1</td><td>C2</td><td>C3</td>
         </tr>
     `,
     'rowspan above': `
         <tr>
-            <td rowspan="2">A1 B1</td> <td>A2</td>
+            <td rowspan="2">A1 B1</td><td>A2</td>
         </tr>
         <tr>
             <td>B2</td>
         </tr>
         <tr>
-            <td>C1</td> <td>C2</td>
+            <td>C1</td><td>C2</td>
         </tr>
     `,
 };

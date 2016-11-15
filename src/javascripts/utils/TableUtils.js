@@ -3,19 +3,19 @@ import UUID from './UUID';
 /**
  * A collection of utilities for performing merge and insert operations on a table.
  *
- * A table element is represented by a "grid" data structure. A grid makes it easier to traverse
- * a table and query about cell operations. Rowspan and colspan attributes complicate table
- * operations by creating "virtual" that do not have TD or TH elements. A grid differs
- * from a table because all
+ * A table element is represented by a "grid" data structure. The grid makes it easier to traverse
+ * a table and query the possible cell operations. A table cell's rowspan and colspan
+ * attributes complicate table operations because of "virtual" cells that do not have TD
+ * or TH elements.
  *
  * A grid is a two-dimensional array of cell objects. Each cell object contains information
  * about the row and column span properties of each cell.
  *
- *  {
- *      rowSpan {number} The rowSpan.
- *      colSpan {number} The colSpan.
- *      el {HTMLTableCellElement} The <TD> or <TH> element.
- *  }
+ * A grid cell contains the following properties:
+ *
+ *     - rowSpan {number} The rowSpan.
+ *     - colSpan {number} The colSpan.
+ *     - el {HTMLTableCellElement} The <TD> or <TH> element, or null if it's a virtual cell.
  *
  * As an example, here is a row that has a 2-column span:
  *
@@ -29,8 +29,8 @@ import UUID from './UUID';
  *          {rowSpan: 1, colSpan: 1, el: HTMLTableCellElement}
  *      ]
  *
- * The first element is the origin cell of the column span, and the second element is a
- * virtual cell. Virtual cells have a null el value, and the same rowSpan and colSpan
+ * The first element is the column span origin cell, and the second element is a
+ * virtual cell. Virtual cells have a null `el` value, and the same rowSpan and colSpan
  * values as the origin cell.
  */
 
@@ -183,10 +183,14 @@ export function unMerge(grid, sourceEl){
 
         // Create and insert a new cell.
         const el = sourceEl.cloneNode(false);
+
         el.colSpan = colSpan;
         el.rowSpan = 1;
         const nextSibling = gridAt(safeGrid, row + i, col + colSpan).el;
         rowEl.insertBefore(el, nextSibling);
+
+        // Generate a new UUID, because cloneNode clones the data-uuid.
+        el.dataset.uuid = UUID();
 
         unMergeColumns(el);
     }
@@ -217,9 +221,9 @@ function initializeGrid(nRows, nCols){
  * Populates a grid's cells from a table element.
  */
 function populateGrid(tableEl, grid, nRows, nCols){
-    let row = 0;
-    Array.from(tableEl.rows).forEach(rowEl => {
+    Array.from(tableEl.rows).forEach((rowEl, row) => {
         let col = 0;
+
         Array.from(rowEl.cells).forEach(cell => {
             // Skip cells that were filled by rowspans from above. Cells initially have
             // rowSpan = colSpan = 0.
@@ -231,7 +235,6 @@ function populateGrid(tableEl, grid, nRows, nCols){
             fillSpans(grid, row, col, cell);
             col += cell.colSpan;
         });
-        row += 1;
     });
 }
 
@@ -244,37 +247,37 @@ function populateGrid(tableEl, grid, nRows, nCols){
 function dimensions(tableEl){
     const rows = Array.from(tableEl.rows);
 
-    const nCols = rows.reduce((maxCols, row) => {
-        const cols = Array.from(row.cells).reduce((rowCols, cell) => {
+    const nCols = rows.reduce((maxWidth, rowEl) => {
+        const width = Array.from(rowEl.cells).reduce((rowCols, cell) => {
             return rowCols + cell.colSpan;
         }, 0);
-        return Math.max(maxCols, cols);
+        return Math.max(maxWidth, width);
     }, 0);
 
     return [rows.length, nCols];
 }
 
 /**
- * Extends a cell based on rowspan and colspan attributes.
+ * Extends a grid cell based on rowspan and colspan attributes.
  *
  * @param {Array.<Array<Object>>} grid The grid.
- * @param row The current row.
- * @param col The current column.
- * cell The table element.
+ * @param row {number} The current row.
+ * @param col {number} The current column.
+ * @param el {HTMLTableCellElement} The table cell element.
  */
-function fillSpans(grid, row, col, cell){
-    for (let i = 0; i < cell.rowSpan; i++){
-        for (let j = 0; j < cell.colSpan; j++){
-            gridAt(grid, row + i, col + j).rowSpan = cell.rowSpan;
-            gridAt(grid, row + i, col + j).colSpan = cell.colSpan;
+function fillSpans(grid, row, col, el){
+    for (let i = 0; i < el.rowSpan; i++){
+        for (let j = 0; j < el.colSpan; j++){
+            gridAt(grid, row + i, col + j).rowSpan = el.rowSpan;
+            gridAt(grid, row + i, col + j).colSpan = el.colSpan;
         }
     }
 }
 
 /**
  * Returns the grid element at [row][col] after validating that the `row` and `col` values exist
- * in the grid. Throws an error if they are not valid.
- * Returns the row array if the column argument is omitted.
+ * in the grid. Throws an error if they are not valid. Returns the row array if the column
+ * argument is omitted.
  *
  * @param {Array.<Array<Object>>} grid The grid.
  * @param {number} row The row index.
@@ -302,7 +305,7 @@ function unMergeColumns(sourceEl){
         el.dataset.uuid = UUID();
 
         // TODO (Clark): Do we want to clone the node or use DEFAULT_CELL_CONTENT?
-        // The ToolbarTableCommandCapability#addTableColumn_ method simply sets the innerHTML:
+        // The ToolbarTableCommandCapability#addTableColumn_ method uses a default innerHTML:
         // el.innerHTML =  ToolbarTableCommandCapability.DEFAULT_CELL_CONTENT_;
 
         el.colSpan = 1;
