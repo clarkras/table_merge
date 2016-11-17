@@ -29,27 +29,27 @@ $arrow-inactive-color: rgba(150, 150, 150, 0.3)
 
 .arrow
   position: absolute
-  width: 0px 
-  height: 0px 
+  width: 0px
+  height: 0px
   border-left: $arrow-size solid transparent
   border-right: $arrow-size solid transparent
   border-top: $arrow-size solid transparent
   border-bottom: $arrow-size solid transparent
 
-.arrow-up
+.arrow-above
   border-bottom: $arrow-size solid $arrow-border-color
   top: 0 - $arrow-size / 2
   left: $arrow-size * 1.5
 
-.arrow-up.inactive
+.arrow-above.inactive
   border-bottom-color: $arrow-inactive-color
 
-.arrow-down
+.arrow-below
   border-top: $arrow-size solid $arrow-border-color
   top: $arrow-size * 3.5
   left: $arrow-size * 1.5
 
-.arrow-down.inactive
+.arrow-below.inactive
   border-top-color: $arrow-inactive-color
 
 .arrow-right
@@ -61,12 +61,12 @@ $arrow-inactive-color: rgba(150, 150, 150, 0.3)
   border-left-color: $arrow-inactive-color
 
 .arrow-left
-  border-right: $arrow-size solid $arrow-border-color 
+  border-right: $arrow-size solid $arrow-border-color
   top: $arrow-size * 1.5
   left: 0 - $arrow-size / 2
 
 .arrow-left.inactive
-  border-right-color: $arrow-inactive-color 
+  border-right-color: $arrow-inactive-color
 
 .arrow-unmerge
   border: 0

@@ -1,22 +1,5 @@
 import * as TableUtils from '../utils/TableUtils'
 
-function operationsToString(expected, actual){
-    // Use this:
-    // console.log(operationsToString(expected, operations));
-    return `
-        operation    expected, actual
-        mergeLeft:   ${expected.mergeLeft},   ${actual.mergeLeft},
-        mergeRight:  ${expected.mergeRight},  ${actual.mergeRight},
-        mergeAbove:  ${expected.mergeAbove},  ${actual.mergeAbove},
-        mergeBelow:  ${expected.mergeBelow},  ${actual.mergeBelow},
-        unMerge:     ${expected.unMerge},     ${actual.unMerge},
-        insertLeft:  ${expected.insertLeft},  ${actual.insertLeft},
-        insertRight: ${expected.insertRight}, ${actual.insertRight},
-        insertAbove: ${expected.insertAbove}, ${actual.insertAbove},
-        insertBelow: ${expected.insertBelow}, ${actual.insertBelow},
-    `;
-}
-
 /**
  * Utility function to squash the whitespace from the inner HTML of an element.
  */

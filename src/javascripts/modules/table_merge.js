@@ -1,4 +1,5 @@
 import * as DOMUtils from '../utils/DOMUtils.js'
+import * as DebugUtils from '../utils/DebugUtils'
 import * as TableMergeUtils from '../utils/TableUtils.js'
 import * as TableUtils from '../utils/TableUtils'
 
@@ -11,7 +12,7 @@ export default class TableMerge {
         console.groupCollapsed('Tables');
         Array.from(tables).forEach(t => {
             console.groupCollapsed(t.id);
-            TableUtils.dumpTable(t);
+            DebugUtils.dumpTable(t);
             console.groupEnd();
             t.querySelector('caption').addEventListener('click', this.onClickCaption.bind(this));
         });
@@ -21,7 +22,7 @@ export default class TableMerge {
     annotateTables(tables){
         Array.from(tables).forEach(t => {
             const cells = t.querySelectorAll('th, td');
-            const grid = TableUtils.buildTableMap(t);
+            const grid = TableUtils.createTableGrid(t);
             Array.from(cells).forEach(cell => {
                 this.annotateCell(cell);
                 this.setOperations(grid, cell);
@@ -31,8 +32,8 @@ export default class TableMerge {
 
     annotateCell(el){
         const html = `
-                        <div class="arrow arrow-up"></div>
-                        <div class="arrow arrow-down"></div>
+                        <div class="arrow arrow-above"></div>
+                        <div class="arrow arrow-below"></div>
                         <div class="arrow arrow-left"></div>
                         <div class="arrow arrow-right"></div>
                         <div class="arrow arrow-unmerge"><img src="/images/unMerge.png"/></div>
@@ -46,7 +47,7 @@ export default class TableMerge {
 
     setOperations(grid, el){
         const operations = TableUtils.operations(grid, el);
-        ['Up', 'Down', 'Left', 'Right'].forEach(direction => {
+        ['Above', 'Below', 'Left', 'Right'].forEach(direction => {
             const operation = `merge${direction}`;
             const selector = `.arrow-${direction.toLowerCase()}`;
             const arrowEl = el.querySelector(selector);
@@ -67,7 +68,7 @@ export default class TableMerge {
     }
 
     onClickCaption(evt){
-        TableUtils.dumpTable(evt.target.parentElement);
+        DebugUtils.dumpTable(evt.target.parentElement);
     }
 
     onClickMerge(evt){
@@ -76,11 +77,11 @@ export default class TableMerge {
         console.log('onClickMerge', operation);
         const table = DOMUtils.getParent(evt.target, 'table');
         if (!table) return;   // why does this happen?
-        const grid = TableUtils.buildTableMap(table);
+        const grid = TableUtils.createTableGrid(table);
         if (TableMergeUtils.hasOwnProperty(operation)){
             TableMergeUtils[operation](grid, DOMUtils.getParent(evt.target, 'td, th'));
             this.annotateTables([table]);
-            TableUtils.dumpTable(table);
+            DebugUtils.dumpTable(table);
         }
         return false;
     }
