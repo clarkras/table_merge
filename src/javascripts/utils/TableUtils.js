@@ -1,4 +1,5 @@
 import UUID from './UUID';
+import * as XMLUtilities from './XMLUtilities';
 
 /**
  * A collection of utilities for performing merge and insert operations on a table.
@@ -182,20 +183,15 @@ export function unMerge(grid, sourceEl){
         rowEl = rowEl.nextElementSibling;
 
         // Create and insert a new cell.
-        const el = sourceEl.cloneNode(false);
-
-        el.colSpan = colSpan;
-        el.rowSpan = 1;
+        const el = cloneCell(sourceEl);
+        if (colSpan > 1) el.colSpan = colSpan;
         const nextSibling = gridAt(safeGrid, row + i, col + colSpan).el;
         rowEl.insertBefore(el, nextSibling);
-
-        // Generate a new UUID, because cloneNode clones the data-uuid.
-        el.dataset.uuid = UUID();
 
         unMergeColumns(el);
     }
 
-    sourceEl.rowSpan = 1;
+    sourceEl.removeAttribute('rowspan');
 }
 
 /**
@@ -299,21 +295,14 @@ function gridAt(grid, row, col = null){
  */
 function unMergeColumns(sourceEl){
     for (let i = 1; i < sourceEl.colSpan; i++){
-        const el = sourceEl.cloneNode(false);
+        const el = cloneCell(sourceEl);
+        const row = sourceEl.parentElement;
 
-        // Generate a new UUID, because cloneNode clones the data-uuid.
-        el.dataset.uuid = UUID();
-
-        // TODO (Clark): Do we want to clone the node or use DEFAULT_CELL_CONTENT?
-        // The ToolbarTableCommandCapability#addTableColumn_ method uses a default innerHTML:
-        // el.innerHTML =  ToolbarTableCommandCapability.DEFAULT_CELL_CONTENT_;
-
-        el.colSpan = 1;
-        el.rowSpan = 1;
-        sourceEl.parentElement.insertBefore(el, sourceEl.nextElementSibling);
+        row.insertBefore(row.ownerDocument.createTextNode(' '), sourceEl.nextElementSibling);
+        row.insertBefore(el, sourceEl.nextElementSibling);
     }
 
-    sourceEl.colSpan = 1;
+    sourceEl.removeAttribute('colspan');
 }
 
 function canMergeLeft(grid, row, col){
@@ -405,3 +394,22 @@ function canInsertBelow(grid, row, col){
     }
     return canInsertAbove(grid, belowRow);
 }
+
+/**
+ * Clones a table element and sets the new element's properties and content to default values.
+ *
+ * @param {HTMLTableCellElement} sourceEl The source element.
+ * @return {HTMLTableCellElement} A new element.
+ */
+function cloneCell(sourceEl){
+    const el = sourceEl.cloneNode(false /* deep */);
+
+    XMLUtilities.setS9ID(el, UUID());
+    el.innerHTML = DEFAULT_CELL_CONTENT_;
+    el.removeAttribute('colspan');
+    el.removeAttribute('rowspan');
+
+    return el;
+}
+
+const DEFAULT_CELL_CONTENT_ = '<br/>';

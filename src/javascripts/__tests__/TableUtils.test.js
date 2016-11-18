@@ -190,8 +190,8 @@ describe('Utilities:TableUtils', () => {
                 const html = serializeInnerElement(tableEl.tBodies[0]);
 
                 expect(html).toMatch(
-                    '<tr><td colspan="1" rowspan="1">A1, A2</td><td colspan="1" ' +
-                    'data-uuid="[a-h0-9]{32}" rowspan="1"></td><td>A3</td></tr>' +
+                    '<tr><td>A1, A2</td> <td ' +
+                    'data-uuid="[a-h0-9]{32}"><br></td><td>A3</td></tr>' +
                     '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
                 );
             });
@@ -315,8 +315,8 @@ describe('Utilities:TableUtils', () => {
                 const html = serializeInnerElement(tableEl.tBodies[0]);
 
                 expect(html).toMatch(
-                    '<tr><td>A1</td><td colspan="1" rowspan="1">A2, A3</td><td colspan="1" ' +
-                    'data-uuid="[a-h0-9]{32}" rowspan="1"></td></tr>' +
+                    '<tr><td>A1</td><td>A2, A3</td><td ' +
+                    'data-uuid="[a-h0-9]{32}"><br></td></tr>' +
                     '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
                 );
             });
@@ -389,8 +389,8 @@ describe('Utilities:TableUtils', () => {
                 const html = serializeInnerElement(tableEl.tBodies[0]);
 
                 expect(html).toMatch(
-                    '<tr><td rowspan="1" colspan="1">A1</td><td>A2</td><td>A3</td></tr>' +
-                    '<tr><td rowspan="1" colspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                    '<tr><td>A1</td><td>A2</td><td>A3</td></tr>' +
+                    '<tr><td data-uuid="[a-h0-9]{32}"><br></td>' +
                     '<td>B2</td><td>B3</td></tr>'
                 );
             });
@@ -484,13 +484,13 @@ describe('Utilities:TableUtils', () => {
 
                 expect(html).toMatch(
                     '<tr>' +
-                        '<td colspan="1" rowspan="1">A1, A2</td>' +
-                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                        '<td>A1, A2</td> ' +
+                        '<td data-uuid="[a-h0-9]{32}"><br></td>' +
                         '<td>A3</td>' +
                     '</tr>' +
                     '<tr>' +
-                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
-                        '<td colspan="1" rowspan="1" data-uuid="[a-h0-9]{32}"></td>' +
+                        '<td data-uuid="[a-h0-9]{32}"><br></td> ' +
+                        '<td data-uuid="[a-h0-9]{32}"><br></td>' +
                         '<td>B3</td>' +
                     '</tr>' +
                     '<tr>' +
