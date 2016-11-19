@@ -1,6 +1,8 @@
 import UUID from './UUID';
 import * as XMLUtilities from './XMLUtilities';
 
+// TODO (Clark): row/column delete operations
+
 /**
  * A collection of utilities for performing merge and insert operations on a table.
  *
@@ -111,7 +113,6 @@ export function findCell(grid, el){
  */
 export function mergeLeft(grid, sourceEl){
     const destEl = sourceEl.previousElementSibling;
-    sourceEl.parentElement.removeChild(sourceEl);
     destEl.parentElement.replaceChild(sourceEl, destEl);
     sourceEl.colSpan += destEl.colSpan;
 }
@@ -139,7 +140,6 @@ export function mergeAbove(grid, sourceEl){
     const destRow = row - gridAt(grid, row - 1, col).rowSpan;
     const destEl = gridAt(grid, destRow, col).el;
 
-    sourceEl.parentElement.removeChild(sourceEl);
     destEl.parentElement.replaceChild(sourceEl, destEl);
     sourceEl.rowSpan += destEl.rowSpan;
     // TODO (Clark): Do we want to check for an empty row and remove it?
@@ -194,6 +194,58 @@ export function unMerge(grid, sourceEl){
     sourceEl.removeAttribute('rowspan');
 }
 
+/*
+ * @param {function} operation The operation function, e.g., canMergeBelow.
+ */
+export function isApplicable(operation, selectionContext){
+    return true;
+    // let targetEl = selectionContext.singleNode;
+    // if (!targetEl) return false;
+    // if (targetEl.tagName === 'TR'){
+    //     targetEl = targetEl.cells[0];
+    // }
+    // if (!targetEl) return false;
+
+    // let table = DOMUtils.getParent(targetEl, 'table');
+    // if (!table) return false;
+
+    // return operation(createTableGrid(table), targetEl);
+
+}
+
+/**
+ * TODO (Clark): This creates the cells, but doesn't actuall add them to the table.
+ * @return {Array.<HTMLTableCellElement>} The new table cells.
+ */
+export function addRowBelow(grid, sourceEl){
+    const [row, _col] = findCell(grid, sourceEl);
+    const cells = [];
+
+    gridAt(grid, row).forEach((cell, col) => {
+        if (cell.el){
+            const newCell = cloneCell(cell.el);
+            if (cell.el.colSpan > 1) newCell.colSpan = cell.el.colSpan;
+            cells.push(newCell);
+        } else if (cell.rowSpan > 1) {
+            // Create a new cell if this is the bottom of the rowspan.
+            if (row - cell.rowSpan - 1 >= 0 && (gridAt(grid, [row - cell.rowSpan][col]).el)){
+                cells.push(cloneCell(cell.el));
+            }
+
+            // It's a virtual cell, so find the origin and bump the rowSpan value.
+            for (let i = row; i != -1; i--){
+                const el = gridAt(grid, i, col);
+                if (el){
+                    el.rowSpan++;
+                    break;
+                }
+            }
+        }
+    });
+
+    return cells;
+}
+
 /**
  * Creates an empty grid of nRows x nCols.
  */
@@ -243,23 +295,22 @@ function populateGrid(tableEl, grid, nRows, nCols){
 function dimensions(tableEl){
     const rows = Array.from(tableEl.rows);
 
-    const nCols = rows.reduce((maxWidth, rowEl) => {
-        const width = Array.from(rowEl.cells).reduce((rowCols, cell) => {
+    const maxWidth = Math.max(...rows.map(rowEl => {
+        return Array.from(rowEl.cells).reduce((rowCols, cell) => {
             return rowCols + cell.colSpan;
         }, 0);
-        return Math.max(maxWidth, width);
-    }, 0);
+    }));
 
-    return [rows.length, nCols];
+    return [rows.length, maxWidth];
 }
 
 /**
  * Extends a grid cell based on rowspan and colspan attributes.
  *
  * @param {Array.<Array<Object>>} grid The grid.
- * @param row {number} The current row.
- * @param col {number} The current column.
- * @param el {HTMLTableCellElement} The table cell element.
+ * @param {number} row The current row.
+ * @param {number} col The current column.
+ * @param {HTMLTableCellElement} el The table cell element.
  */
 function fillSpans(grid, row, col, el){
     for (let i = 0; i < el.rowSpan; i++){

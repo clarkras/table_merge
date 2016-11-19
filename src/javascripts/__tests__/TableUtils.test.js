@@ -1,19 +1,31 @@
 import * as TableUtils from '../utils/TableUtils'
 
-/**
- * Utility function to squash the whitespace from the inner HTML of an element.
- */
-function serializeInnerElement(el){
-    return el.innerHTML.replace(/\s{2,}/g, '');
-}
-
 describe('Utilities:TableUtils', () => {
-    let tableEl, grid;
+    let tableEl;
+    let grid;
+
+    beforeEach(function(){
+        this.addMatchers({
+            toMatchWithoutWhitespace(str){
+                const replaceRegExp = /\s{2,}/g;
+                const expected = new RegExp(str.replace(replaceRegExp, ''));
+                const actual = this.actual.replace(replaceRegExp, '');
+                return expected.test(actual);
+            },
+        });
+    });
 
     describe('no spans', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['no spans'];
+            tableEl.innerHTML = `
+                <tr>
+                    <td>A1</td><td>A2</td><td>A3</td>
+                </tr>
+                <tr>
+                    <td>B1</td><td>B2</td><td>B3</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -34,26 +46,42 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#addRowBelow', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.addRowBelow(grid, grid[0][0].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+
             it('#mergeBelow', () => {
                 TableUtils.mergeBelow(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td rowspan="2">A1</td><td>A2</td><td>A3</td></tr>' +
-                    '<tr><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="2">A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="2">A1</td><td>A3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A1</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -77,34 +105,40 @@ describe('Utilities:TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][1].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="2">A2</td><td>A3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][1].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td>A1</td><td colspan="2">A2</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td colspan="2">A2</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#mergeBelow', () => {
                 TableUtils.mergeBelow(grid, grid[0][1].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td>A1</td><td rowspan="2">A2</td><td>A3</td></tr>' +
-                    '<tr><td>B1</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td rowspan="2">A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -125,26 +159,40 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#addRowBelow', () => {
+                const cells = TableUtils.addRowBelow(grid, grid[1][2].el);
+                const row = document.createElement('tr');
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[1][2].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td>A1</td><td>A2</td><td>A3</td></tr>' +
-                    '<tr><td>B1</td><td colspan="2">B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td></tr>
+                    <tr>
+                        <td>B1</td><td colspan="2">B3</td>
+                    </tr>
+                `);
             });
 
             it('#mergeAbove', () => {
                 TableUtils.mergeAbove(grid, grid[1][2].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td>A1</td><td>A2</td><td rowspan="2">B3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td rowspan="2">B3</td></tr>
+                    <tr>
+                        <td>B1</td><td>B2</td>
+                    </tr>
+                `);
             });
         });
     });
@@ -152,7 +200,14 @@ describe('Utilities:TableUtils', () => {
     describe('single colspan top left', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['single colspan top left'];
+            tableEl.innerHTML = `
+                <tr>
+                    <td colspan="2">A1, A2</td><td>A3</td>
+                </tr>
+                <tr>
+                    <td>B1</td><td>B2</td><td>B3</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -176,24 +231,37 @@ describe('Utilities:TableUtils', () => {
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="3">A1, A2</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">A1, A2</td></tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1, A2</td> <td data-uuid="[a-h0-9]{32}"><br></td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
+            });
 
-                expect(html).toMatch(
-                    '<tr><td>A1, A2</td> <td ' +
-                    'data-uuid="[a-h0-9]{32}"><br></td><td>A3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+            it('#addRowBelow', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.addRowBelow(grid, grid[0][0].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
             });
         });
 
@@ -217,12 +285,13 @@ describe('Utilities:TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][2].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="3">A3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">A3</td></tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -248,7 +317,14 @@ describe('Utilities:TableUtils', () => {
     describe('single colspan top right', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['single colspan top right'];
+            tableEl.innerHTML = `
+                <tr>
+                  <td>A1</td><td colspan="2">A2, A3</td>
+                </tr>
+                <tr>
+                  <td>B1</td><td>B2</td><td>B3</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -272,12 +348,13 @@ describe('Utilities:TableUtils', () => {
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="3">A1</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">A1</td></tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -301,24 +378,37 @@ describe('Utilities:TableUtils', () => {
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[0][1].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td colspan="3">A2, A3</td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">A2, A3</td></tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][1].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2, A3</td><td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
+            });
 
-                expect(html).toMatch(
-                    '<tr><td>A1</td><td>A2, A3</td><td ' +
-                    'data-uuid="[a-h0-9]{32}"><br></td></tr>' +
-                    '<tr><td>B1</td><td>B2</td><td>B3</td></tr>'
-                );
+            it('#addRowBelow', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.addRowBelow(grid, grid[0][1].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                `);
             });
         });
 
@@ -362,7 +452,14 @@ describe('Utilities:TableUtils', () => {
     describe('single rowspan', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['single rowspan'];
+            tableEl.innerHTML = `
+                <tr>
+                    <td rowspan="2">A1</td><td>A2</td><td>A3</td>
+                </tr>
+                <tr>
+                    <td>B2</td><td>B3</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -386,13 +483,14 @@ describe('Utilities:TableUtils', () => {
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toMatch(
-                    '<tr><td>A1</td><td>A2</td><td>A3</td></tr>' +
-                    '<tr><td data-uuid="[a-h0-9]{32}"><br></td>' +
-                    '<td>B2</td><td>B3</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -418,7 +516,17 @@ describe('Utilities:TableUtils', () => {
     describe('rowspan above', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['rowspan above'];
+            tableEl.innerHTML = `
+                <tr>
+                    <td rowspan="2">A1 B1</td><td>A2</td>
+                </tr>
+                <tr>
+                    <td>B2</td>
+                </tr>
+                <tr>
+                    <td>C1</td><td>C2</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -442,13 +550,17 @@ describe('Utilities:TableUtils', () => {
             it('#mergeAbove', () => {
                 TableUtils.mergeAbove(grid, grid[2][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toBe(
-                    '<tr><td rowspan="3">C1</td><td>A2</td></tr>' +
-                    '<tr><td>B2</td></tr>' +
-                    '<tr><td>C2</td></tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="3">C1</td><td>A2</td>
+                    </tr>
+                    <tr>
+                        <td>B2</td>
+                    </tr>
+                    <tr>
+                        <td>C2</td>
+                    </tr>
+                `);
             });
         });
     });
@@ -456,7 +568,17 @@ describe('Utilities:TableUtils', () => {
     describe('colspan and rowspan', () => {
         beforeEach(() => {
             tableEl = document.createElement('table');
-            tableEl.innerHTML = TABLE_HTML['colspan and rowspan'];
+            tableEl.innerHTML = `
+                <tr>
+                    <td colspan="2" rowspan="2">A1, A2</td><td>A3</td>
+                </tr>
+                <tr>
+                    <td>B3</td>
+                </tr>
+                <tr>
+                    <td>C1</td><td>C2</td><td>C3</td>
+                </tr>
+            `;
             grid = TableUtils.createTableGrid(tableEl);
         });
 
@@ -480,25 +602,18 @@ describe('Utilities:TableUtils', () => {
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 
-                const html = serializeInnerElement(tableEl.tBodies[0]);
-
-                expect(html).toMatch(
-                    '<tr>' +
-                        '<td>A1, A2</td> ' +
-                        '<td data-uuid="[a-h0-9]{32}"><br></td>' +
-                        '<td>A3</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td data-uuid="[a-h0-9]{32}"><br></td> ' +
-                        '<td data-uuid="[a-h0-9]{32}"><br></td>' +
-                        '<td>B3</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td>C1</td>' +
-                        '<td>C2</td>' +
-                        '<td>C3</td>' +
-                    '</tr>'
-                );
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1, A2</td> <td data-uuid="[a-h0-9]{32}"><br></td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td> <td data-uuid="[a-h0-9]{32}">
+                        <br></td><td>B3</td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td>C2</td><td>C3</td>
+                    </tr>
+                `);
             });
         });
 
@@ -539,60 +654,3 @@ describe('Utilities:TableUtils', () => {
         });
     });
 });
-
-const TABLE_HTML = {
-    'no spans': `
-        <tr>
-            <td>A1</td><td>A2</td><td>A3</td>
-        </tr>
-        <tr>
-            <td>B1</td><td>B2</td><td>B3</td>
-        </tr>
-    `,
-    'single colspan top left': `
-        <tr>
-            <td colspan="2">A1, A2</td><td>A3</td>
-        </tr>
-        <tr>
-            <td>B1</td><td>B2</td><td>B3</td>
-        </tr>
-    `,
-    'single colspan top right': `
-        <tr>
-          <td>A1</td><td colspan="2">A2, A3</td>
-        </tr>
-        <tr>
-          <td>B1</td><td>B2</td><td>B3</td>
-        </tr>
-    `,
-    'single rowspan': `
-        <tr>
-            <td rowspan="2">A1</td><td>A2</td><td>A3</td>
-        </tr>
-        <tr>
-            <td>B2</td><td>B3</td>
-        </tr>
-    `,
-    'colspan and rowspan': `
-        <tr>
-            <td colspan="2" rowspan="2">A1, A2</td><td>A3</td>
-        </tr>
-        <tr>
-            <td>B3</td>
-        </tr>
-        <tr>
-            <td>C1</td><td>C2</td><td>C3</td>
-        </tr>
-    `,
-    'rowspan above': `
-        <tr>
-            <td rowspan="2">A1 B1</td><td>A2</td>
-        </tr>
-        <tr>
-            <td>B2</td>
-        </tr>
-        <tr>
-            <td>C1</td><td>C2</td>
-        </tr>
-    `,
-};

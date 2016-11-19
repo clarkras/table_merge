@@ -7,6 +7,7 @@ window.TableUtils = TableUtils;
 
 export default class TableMerge {
     constructor(container) {
+        this.container = container;
         const tables = container.querySelectorAll('.table-test');
         this.annotateTables(tables);
         console.groupCollapsed('Tables');
@@ -17,6 +18,9 @@ export default class TableMerge {
             t.querySelector('caption').addEventListener('click', this.onClickCaption.bind(this));
         });
         console.groupEnd();
+        container.querySelectorAll('input[name=mode]').forEach(el => {
+            el.addEventListener('click', this.onClickModeButton.bind(this));
+        });
     }
 
     annotateTables(tables){
@@ -31,6 +35,10 @@ export default class TableMerge {
     }
 
     annotateCell(el){
+        let container = el.querySelector('.arrow-container');
+        if (container) return;
+
+        container = document.createElement('div');
         const html = `
                         <div class="arrow arrow-above"></div>
                         <div class="arrow arrow-below"></div>
@@ -38,24 +46,25 @@ export default class TableMerge {
                         <div class="arrow arrow-right"></div>
                         <div class="arrow arrow-unmerge"><img src="/images/unMerge.png"/></div>
                      `
-        const container = el.querySelector('.arrow-container') || document.createElement('div');
         container.classList.add('arrow-container');
         container.innerHTML = html;
         el.appendChild(container);
-        container.addEventListener('click', this.onClickMerge.bind(this));
+        container.addEventListener('click', this.onClickTableCell.bind(this));
     }
 
     setOperations(grid, el){
         const operations = TableUtils.operations(grid, el);
+        const mode = document.body.querySelector('input:checked').value;
         ['Above', 'Below', 'Left', 'Right'].forEach(direction => {
-            const operation = `merge${direction}`;
+            const operation = `${mode}${direction}`;
             const selector = `.arrow-${direction.toLowerCase()}`;
             const arrowEl = el.querySelector(selector);
             console.assert(arrowEl);
-            if (!operations[operation]){
-                arrowEl.classList.add('inactive');
-            } else {
+            arrowEl.classList.toggle('inactive', !operations[operation]);
+            if (operations[operation]){
                 arrowEl.dataset.operation = operation;
+            } else {
+                arrowEl.dataset.operation = '';
             }
         });
         const arrowEl = el.querySelector('.arrow-unmerge');
@@ -71,18 +80,32 @@ export default class TableMerge {
         DebugUtils.dumpTable(evt.target.parentElement);
     }
 
-    onClickMerge(evt){
+    onClickTableCell(evt){
+        console.log(evt);
+        evt.stopPropagation();
+        evt.preventDefault();
+        const table = DOMUtils.getParent(evt.target, 'table');
+        if (!table) return false;   // why does this happen?
+
         const operation = evt.target.dataset.operation ||
                 evt.target.parentElement.dataset.operation;
-        console.log('onClickMerge', operation);
-        const table = DOMUtils.getParent(evt.target, 'table');
-        if (!table) return;   // why does this happen?
-        const grid = TableUtils.createTableGrid(table);
-        if (TableMergeUtils.hasOwnProperty(operation)){
-            TableMergeUtils[operation](grid, DOMUtils.getParent(evt.target, 'td, th'));
-            this.annotateTables([table]);
-            DebugUtils.dumpTable(table);
+        const mode = document.body.querySelector('input:checked').value;
+        console.log('onClickTableCell', operation, mode);
+        if (mode === 'merge'){
+            const grid = TableUtils.createTableGrid(table);
+            if (TableMergeUtils.hasOwnProperty(operation)){
+                TableMergeUtils[operation](grid, DOMUtils.getParent(evt.target, 'td, th'));
+                this.annotateTables([table]);
+                DebugUtils.dumpTable(table);
+            }
+        } else {
+
         }
         return false;
+    }
+
+    onClickModeButton(evt){
+        const tables = this.container.querySelectorAll('.table-test');
+        this.annotateTables(tables);
     }
 }
