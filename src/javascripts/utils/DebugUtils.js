@@ -40,7 +40,7 @@ export function logGrid(grid){
     return grid.map((row) => {
         return row.map((cell) => {
             const tagName = cell.el && cell.el.tagName ? cell.el.tagName : '--';
-            return `${tagName}[${cell.rowSpan},${cell.colSpan}]`;
+            return `${tagName}[${cell.rowSpan},${cell.colSpan},${cell.rowOffset},${cell.colOffset}]`;
         }).join(' ');
     });
 }

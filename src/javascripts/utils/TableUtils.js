@@ -82,7 +82,7 @@ export function operations(grid, el){
         insertLeft: canInsertLeft(grid, col),
         insertRight: canInsertRight(grid, row, col),
         insertAbove: canInsertAbove(grid, row),
-        insertBelow: canInsertBelow(grid, row, col),
+        insertBelow: true,
     };
 }
 
@@ -215,35 +215,49 @@ export function isApplicable(operation, selectionContext){
 
 /**
  * TODO (Clark): This creates the cells, but doesn't actuall add them to the table.
+ * Side effects: increases the rowSpan of cells that intersect the insertion row.
  * @return {Array.<HTMLTableCellElement>} The new table cells.
  */
-export function addRowBelow(grid, sourceEl){
-    const [row, _col] = findCell(grid, sourceEl);
+export function insertBelow(grid, sourceEl){
+    let [row] = findCell(grid, sourceEl);
     const cells = [];
 
-    gridAt(grid, row).forEach((cell, col) => {
-        if (cell.el){
+    // If we're at the top of a rowspan, let's insert below the cell.
+    row = row + sourceEl.rowSpan - 1;
+
+    const gridRow = gridAt(grid, row);
+
+    for (let col = 0; col < gridRow.length; col++){
+        const cell = gridRow[col];
+
+        if (cell.el && cell.rowSpan === 1){
             const newCell = cloneCell(cell.el);
-            if (cell.el.colSpan > 1) newCell.colSpan = cell.el.colSpan;
+            if (cell.colSpan > 1) newCell.colSpan = cell.el.colSpan;
             cells.push(newCell);
         } else if (cell.rowSpan > 1) {
-            // Create a new cell if this is the bottom of the rowspan.
-            if (row - cell.rowSpan - 1 >= 0 && (gridAt(grid, [row - cell.rowSpan][col]).el)){
-                cells.push(cloneCell(cell.el));
-            }
-
-            // It's a virtual cell, so find the origin and bump the rowSpan value.
-            for (let i = row; i != -1; i--){
-                const el = gridAt(grid, i, col);
-                if (el){
-                    el.rowSpan++;
-                    break;
-                }
+            const origin = findOrigin(grid, row, col, cell);
+            if (cell.rowSpan === cell.rowOffset + 1){
+                // Create a new cell because this is the bottom of the rowspan.
+                const newCell = cloneCell(origin.el);
+                if (origin.colSpan > 1) newCell.colSpan = origin.colSpan;
+                cells.push(newCell);
+            } else {
+                // Extend the cell down by bumping the rowSpan.
+                origin.el.rowSpan++;
             }
         }
-    });
+
+        if (cell.colSpan > 1) col += cell.colSpan - 1;
+    }
 
     return cells;
+}
+
+/**
+ * Returns the origin cell of a virtial cell.
+ */
+function findOrigin(grid, row, col, cell = gridAt(grid, row, col)){
+    return gridAt(grid, row - cell.rowOffset, col - cell.colOffset);
 }
 
 /**
@@ -315,8 +329,11 @@ function dimensions(tableEl){
 function fillSpans(grid, row, col, el){
     for (let i = 0; i < el.rowSpan; i++){
         for (let j = 0; j < el.colSpan; j++){
-            gridAt(grid, row + i, col + j).rowSpan = el.rowSpan;
-            gridAt(grid, row + i, col + j).colSpan = el.colSpan;
+            const cell = gridAt(grid, row + i, col + j);
+            cell.colSpan = el.colSpan;
+            cell.rowSpan = el.rowSpan;
+            cell.rowOffset = i;
+            cell.colOffset = j;
         }
     }
 }

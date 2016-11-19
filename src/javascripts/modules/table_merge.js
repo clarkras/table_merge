@@ -14,6 +14,7 @@ export default class TableMerge {
         Array.from(tables).forEach(t => {
             console.groupCollapsed(t.id);
             DebugUtils.dumpTable(t);
+            console.log(DebugUtils.logGrid(TableUtils.createTableGrid(t)));
             console.groupEnd();
             t.querySelector('caption').addEventListener('click', this.onClickCaption.bind(this));
         });
@@ -81,25 +82,34 @@ export default class TableMerge {
     }
 
     onClickTableCell(evt){
-        console.log(evt);
-        evt.stopPropagation();
-        evt.preventDefault();
         const table = DOMUtils.getParent(evt.target, 'table');
         if (!table) return false;   // why does this happen?
 
         const operation = evt.target.dataset.operation ||
                 evt.target.parentElement.dataset.operation;
-        const mode = document.body.querySelector('input:checked').value;
-        console.log('onClickTableCell', operation, mode);
-        if (mode === 'merge'){
-            const grid = TableUtils.createTableGrid(table);
-            if (TableMergeUtils.hasOwnProperty(operation)){
-                TableMergeUtils[operation](grid, DOMUtils.getParent(evt.target, 'td, th'));
-                this.annotateTables([table]);
-                DebugUtils.dumpTable(table);
-            }
-        } else {
 
+        if (TableMergeUtils.hasOwnProperty(operation)){
+            const mode = document.body.querySelector('input:checked').value;
+            const grid = TableUtils.createTableGrid(table);
+            const cell = DOMUtils.getParent(evt.target, 'td, th');
+
+            if (mode === 'merge'){
+                TableMergeUtils[operation](grid, cell);
+            } else if (mode === 'insert') {
+                const [rowIndex, colIndex] = TableUtils.findCell(grid, cell);
+                if (operation === 'insertBelow'){
+                    const newCells = TableMergeUtils.insertBelow(grid, cell);
+                    const rowAbove = cell.parentElement;
+                    const newRow = rowAbove.cloneNode();
+                    newCells.forEach(newCell => newRow.appendChild(newCell));
+                    const newRowContainer = rowAbove.parentNode;
+                    const newRowIndex = rowIndex + cell.rowSpan;
+                    newRowContainer.insertBefore(
+                            newRow, newRowContainer.children[newRowIndex] || null);
+                }
+            }
+            DebugUtils.dumpTable(table);
+            this.annotateTables([table]);
         }
         return false;
     }
