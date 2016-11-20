@@ -72,8 +72,9 @@ export default class TableMerge {
         console.assert(arrowEl);
         if (operations.unMerge){
             arrowEl.querySelector('img').dataset.operation = 'unMerge';
+            arrowEl.classList.toggle('inactive', false);
         } else {
-            arrowEl.classList.add('inactive');
+            arrowEl.classList.toggle('inactive', true);
         }
     }
 
@@ -98,7 +99,12 @@ export default class TableMerge {
             } else if (mode === 'insert') {
                 const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
                 if (['insertAbove', 'insertBelow'].includes(operation)){
-                    const newCells = TableMergeUtils.insertAbove(grid, targetEl);
+                    let newCells;
+                    if (operation === 'insertAbove'){ 
+                        newCells = TableMergeUtils.insertAbove(grid, targetEl);
+                    } else {
+                        newCells = TableMergeUtils.insertBelow(grid, targetEl);
+                    }
                     const currentRow = targetEl.parentElement;
                     const newRow = currentRow.cloneNode();
                     newCells.forEach(newCell => newRow.appendChild(newCell));
@@ -111,7 +117,10 @@ export default class TableMerge {
                             newRow, newRowContainer.children[newRowIndex] || null);
                 }
                 if (['insertRight'].includes(operation)){
-                    TableUtils.insertRight(grid, targetEl);
+                    TableUtils.insertColumn(grid, targetEl, 'right');
+                }
+                if (operation === 'insertLeft'){
+                    TableUtils.insertColumn(grid, targetEl, 'left');
                 }
             }
             DebugUtils.dumpTable(table);
