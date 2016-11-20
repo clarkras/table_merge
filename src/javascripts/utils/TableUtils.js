@@ -79,7 +79,7 @@ export function operations(grid, el){
         mergeAbove: canMergeAbove(grid, row, col),
         mergeBelow: canMergeBelow(grid, row, col),
         unMerge: canUnMerge(grid, row, col),
-        insertLeft: canInsertLeft(grid, col),
+        insertLeft: true,
         insertRight: true,
         insertAbove: true,
         insertBelow: true,
@@ -213,14 +213,12 @@ export function isApplicable(operation, selectionContext){
 
 }
 
-/**
- * sourceEl must be an HtmlTableCellElement.
- */
-export function insertRight(grid, sourceEl){
+export function insertColumn(grid, sourceEl, direction){
     let [row, col] = findCell(grid, sourceEl);
+    const insertLeft = direction === 'left';
 
-    // If we're at the start of a colspan, let's insert after the cell.
-    if (sourceEl.colSpan > 1) col += sourceEl.colSpan - 1;
+    // If we're inserting right at the start of a colspan, let's insert after the cell.
+    if (!insertLeft) col += sourceEl.colSpan - 1;
 
     const tableRows = sourceEl.parentElement.parentElement.rows;
 
@@ -229,8 +227,13 @@ export function insertRight(grid, sourceEl){
         const cell = gridAt(grid, row, col);
 
         const origin = findOrigin(grid, row, col, cell);
-        if (cell.colSpan === cell.colOffset + 1){
-            // Simple case: a single column or the end of a colspan.
+        if (insertLeft && cell.el){
+            // It's a single column or start of a colspan.
+            const newCell = cloneCell(cell.el);
+            if (cell.rowSpan > 1) newCell.rowSpan = cell.rowSpan;
+            rowEl.insertBefore(newCell, cell.el);
+        } else if (!insertLeft && cell.colSpan === cell.colOffset + 1){
+            // It's a single column or the end of a colspan.
             const newCell = cloneCell(origin.el);
             if (origin.rowSpan > 1) newCell.rowSpan = origin.rowSpan;
             rowEl.insertBefore(newCell, origin.el.nextElementSibling);
@@ -248,7 +251,7 @@ export function insertAbove(grid, sourceEl){
 
     if (row === 0){
         grid[0].forEach(cell => cell.rowSpan = 1);
-        grid = grid.concat([grid[0]], grid);
+        // grid = grid.concat([grid[0]], grid);
         row = 1;
     }
 

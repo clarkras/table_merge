@@ -72,7 +72,7 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[0][0].el);
+                TableUtils.insertColumn(grid, grid[0][0].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -210,7 +210,7 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[1][2].el);
+                TableUtils.insertColumn(grid, grid[1][2].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -280,7 +280,7 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[0][0].el);
+                TableUtils.insertColumn(grid, grid[0][0].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -342,7 +342,7 @@ describe('Utilities:TableUtils', () => {
 
         describe('target cell (1, 0)', () => {
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[1][0].el);
+                TableUtils.insertColumn(grid, grid[1][0].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -395,7 +395,7 @@ describe('Utilities:TableUtils', () => {
                     mergeAbove: false,
                     mergeBelow: false,
                     unMerge: false,
-                    insertLeft: false,
+                    insertLeft: true,
                     insertRight: true,
                     insertAbove: true,
                     insertBelow: true,
@@ -403,7 +403,7 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[1][1].el);
+                TableUtils.insertColumn(grid, grid[1][1].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -554,7 +554,7 @@ describe('Utilities:TableUtils', () => {
                     mergeAbove: false,
                     mergeBelow: false,
                     unMerge: false,
-                    insertLeft: false,
+                    insertLeft: true,
                     insertRight: true,
                     insertAbove: true,
                     insertBelow: true,
@@ -732,7 +732,7 @@ describe('Utilities:TableUtils', () => {
 
         describe('target cell (0, 0)', () => {
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[0][0].el);
+                TableUtils.insertColumn(grid, grid[0][0].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
@@ -885,7 +885,7 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertRight', () => {
-                TableUtils.insertRight(grid, grid[2][0].el);
+                TableUtils.insertColumn(grid, grid[2][0].el, 'right');
 
                 expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
                     <tr>
