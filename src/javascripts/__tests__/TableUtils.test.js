@@ -71,6 +71,19 @@ describe('Utilities:TableUtils', () => {
                 `);
             });
 
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[0][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td data-uuid="[a-h0-9]{32}"><br></td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td data-uuid="[a-h0-9]{32}"><br></td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
+            });
+
             it('#mergeBelow', () => {
                 TableUtils.mergeBelow(grid, grid[0][0].el);
 
@@ -196,6 +209,19 @@ describe('Utilities:TableUtils', () => {
                 `);
             });
 
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[1][2].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td><td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td><td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                `);
+            });
+
             it('#mergeLeft', () => {
                 TableUtils.mergeLeft(grid, grid[1][2].el);
 
@@ -253,6 +279,19 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[0][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A1, A2</td><td data-uuid="[a-h0-9]{32}"><br></td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td data-uuid="[a-h0-9]{32}"><br></td><td>B3</td>
+                    </tr>
+                `);
+            });
+
             it('#mergeRight', () => {
                 TableUtils.mergeRight(grid, grid[0][0].el);
 
@@ -297,6 +336,21 @@ describe('Utilities:TableUtils', () => {
                 expect(row.innerHTML).toMatchWithoutWhitespace(`
                     <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
                     <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+        });
+
+        describe('target cell (1, 0)', () => {
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[1][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td data-uuid="[a-h0-9]{32}"><br></td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
         });
@@ -346,6 +400,19 @@ describe('Utilities:TableUtils', () => {
                     insertAbove: true,
                     insertBelow: true,
                 });
+            });
+
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[1][1].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A1, A2</td><td data-uuid="[a-h0-9]{32}"><br></td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td data-uuid="[a-h0-9]{32}"><br></td><td>B3</td>
+                    </tr>
+                `);
             });
 
             it('#insertAbove', () => {
@@ -470,7 +537,7 @@ describe('Utilities:TableUtils', () => {
                     mergeBelow: false,
                     unMerge: false,
                     insertLeft: true,
-                    insertRight: false,
+                    insertRight: true,
                     insertAbove: true,
                     insertBelow: true,
                 });
@@ -664,6 +731,22 @@ describe('Utilities:TableUtils', () => {
         });
 
         describe('target cell (0, 0)', () => {
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[0][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="2">A1 B1</td><td data-uuid="[a-h0-9]{32}" rowspan="2"><br></td><td>A2</td>
+                    </tr>
+                    <tr>
+                        <td>B2</td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td data-uuid="[a-h0-9]{32}"><br></td><td>C2</td>
+                    </tr>
+                `);
+            });
+
             it('#insertBelow', () => {
                 const row = document.createElement('tr');
                 const cells = TableUtils.insertBelow(grid, grid[0][0].el);
@@ -795,11 +878,28 @@ describe('Utilities:TableUtils', () => {
                     mergeBelow: false,
                     unMerge: false,
                     insertLeft: true,
-                    insertRight: false,
+                    insertRight: true,
                     insertAbove: true,
                     insertBelow: true,
                 });
             });
+
+            it('#insertRight', () => {
+                TableUtils.insertRight(grid, grid[2][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3" rowspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B3</td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td data-uuid="[a-h0-9]{32}"><br></td><td>C2</td><td>C3</td>
+                    </tr>
+                `);
+            });
+
         });
     });
 });

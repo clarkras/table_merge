@@ -80,7 +80,7 @@ export function operations(grid, el){
         mergeBelow: canMergeBelow(grid, row, col),
         unMerge: canUnMerge(grid, row, col),
         insertLeft: canInsertLeft(grid, col),
-        insertRight: canInsertRight(grid, row, col),
+        insertRight: true,
         insertAbove: true,
         insertBelow: true,
     };
@@ -213,6 +213,36 @@ export function isApplicable(operation, selectionContext){
 
 }
 
+/**
+ * sourceEl must be an HtmlTableCellElement.
+ */
+export function insertRight(grid, sourceEl){
+    let [row, col] = findCell(grid, sourceEl);
+
+    // If we're at the start of a colspan, let's insert after the cell.
+    if (sourceEl.colSpan > 1) col += sourceEl.colSpan - 1;
+
+    const tableRows = sourceEl.parentElement.parentElement.rows;
+
+    for (let row = 0; row < grid.length;){
+        const rowEl = tableRows[row];
+        const cell = gridAt(grid, row, col);
+
+        const origin = findOrigin(grid, row, col, cell);
+        if (cell.colSpan === cell.colOffset + 1){
+            // Simple case: a single column or the end of a colspan.
+            const newCell = cloneCell(origin.el);
+            if (origin.rowSpan > 1) newCell.rowSpan = origin.rowSpan;
+            rowEl.insertBefore(newCell, origin.el.nextElementSibling);
+        } else {
+            // We're in the middle of a colspan.
+            origin.el.colSpan += 1;
+        }
+
+        row += cell.rowSpan;
+    }
+}
+
 export function insertAbove(grid, sourceEl){
     let [row, col] = findCell(grid, sourceEl);
 
@@ -240,7 +270,7 @@ export function insertBelow(grid, sourceEl){
 
     const gridRow = gridAt(grid, row);
 
-    for (let col = 0; col < gridRow.length; col++){
+    for (let col = 0; col < gridRow.length;){
         const cell = gridRow[col];
 
         if (cell.el && cell.rowSpan === 1){
@@ -260,16 +290,17 @@ export function insertBelow(grid, sourceEl){
             }
         }
 
-        if (cell.colSpan > 1) col += cell.colSpan - 1;
+        col += cell.colSpan;
     }
 
     return cells;
 }
 
 /**
- * Returns the origin cell of a virtial cell.
+ * Returns the origin cell of a virtual cell.
  */
 function findOrigin(grid, row, col, cell = gridAt(grid, row, col)){
+    if (cell.el) return cell;
     return gridAt(grid, row - cell.rowOffset, col - cell.colOffset);
 }
 

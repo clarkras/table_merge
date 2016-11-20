@@ -91,24 +91,27 @@ export default class TableMerge {
         if (TableMergeUtils.hasOwnProperty(operation)){
             const mode = document.body.querySelector('input:checked').value;
             const grid = TableUtils.createTableGrid(table);
-            const cell = DOMUtils.getParent(evt.target, 'td, th');
+            const targetEl = DOMUtils.getParent(evt.target, 'td, th');
 
             if (mode === 'merge'){
-                TableMergeUtils[operation](grid, cell);
+                TableMergeUtils[operation](grid, targetEl);
             } else if (mode === 'insert') {
-                const [rowIndex, colIndex] = TableUtils.findCell(grid, cell);
+                const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
                 if (['insertAbove', 'insertBelow'].includes(operation)){
-                    const newCells = TableMergeUtils.insertAbove(grid, cell);
-                    const currentRow = cell.parentElement;
+                    const newCells = TableMergeUtils.insertAbove(grid, targetEl);
+                    const currentRow = targetEl.parentElement;
                     const newRow = currentRow.cloneNode();
                     newCells.forEach(newCell => newRow.appendChild(newCell));
                     const newRowContainer = currentRow.parentNode;
                     let newRowIndex = rowIndex;
                     if (operation === 'insertBelow'){
-                        newRowIndex += cell.rowSpan;
+                        newRowIndex += targetEl.rowSpan;
                     }
                     newRowContainer.insertBefore(
                             newRow, newRowContainer.children[newRowIndex] || null);
+                }
+                if (['insertRight'].includes(operation)){
+                    TableUtils.insertRight(grid, targetEl);
                 }
             }
             DebugUtils.dumpTable(table);
