@@ -81,7 +81,7 @@ export function operations(grid, el){
         unMerge: canUnMerge(grid, row, col),
         insertLeft: canInsertLeft(grid, col),
         insertRight: canInsertRight(grid, row, col),
-        insertAbove: canInsertAbove(grid, row),
+        insertAbove: true,
         insertBelow: true,
     };
 }
@@ -213,8 +213,21 @@ export function isApplicable(operation, selectionContext){
 
 }
 
+export function insertAbove(grid, sourceEl){
+    let [row, col] = findCell(grid, sourceEl);
+
+    if (row === 0){
+        grid[0].forEach(cell => cell.rowSpan = 1);
+        grid = grid.concat([grid[0]], grid);
+        row = 1;
+    }
+
+    const cellAbove = findOrigin(grid, row - 1, col);
+    return insertBelow(grid, cellAbove.el);
+}
+
 /**
- * TODO (Clark): This creates the cells, but doesn't actuall add them to the table.
+ * TODO (Clark): This creates the cells, but doesn't actually add them to the table.
  * Side effects: increases the rowSpan of cells that intersect the insertion row.
  * @return {Array.<HTMLTableCellElement>} The new table cells.
  */

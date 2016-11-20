@@ -47,6 +47,18 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#insertAbove', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+
             it('#insertBelow', () => {
                 const row = document.createElement('tr');
                 const cells = TableUtils.insertBelow(grid, grid[0][0].el);
@@ -160,6 +172,18 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#insertAbove', () => {
+                const cells = TableUtils.insertAbove(grid, grid[1][2].el);
+                const row = document.createElement('tr');
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+
             it('#insertBelow', () => {
                 const cells = TableUtils.insertBelow(grid, grid[1][2].el);
                 const row = document.createElement('tr');
@@ -254,6 +278,17 @@ describe('Utilities:TableUtils', () => {
                 `);
             });
 
+            it('#insertAbove', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
+
             it('#insertBelow', () => {
                 const row = document.createElement('tr');
                 const cells = TableUtils.insertBelow(grid, grid[0][0].el);
@@ -311,6 +346,17 @@ describe('Utilities:TableUtils', () => {
                     insertAbove: true,
                     insertBelow: true,
                 });
+            });
+
+            it('#insertAbove', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
             });
         });
     });
@@ -536,9 +582,20 @@ describe('Utilities:TableUtils', () => {
                     unMerge: false,
                     insertLeft: true,
                     insertRight: true,
-                    insertAbove: false,
+                    insertAbove: true,
                     insertBelow: true,
                 });
+            });
+
+            it('#insertAbove', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.insertAbove(grid, grid[1][1].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
             });
 
             it('#insertBelow', () => {
@@ -696,6 +753,17 @@ describe('Utilities:TableUtils', () => {
                     <td data-uuid="[a-h0-9]{32}"><br></td>
                 `);
             });
+
+            it('#insertAbove', () => {
+                const row = document.createElement('tr');
+                const cells = TableUtils.insertAbove(grid, grid[0][2].el);
+                cells.forEach(cell => row.appendChild(cell));
+
+                expect(row.innerHTML).toMatchWithoutWhitespace(`
+                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                `);
+            });
         });
 
         describe('target cell (1, 2)', () => {
@@ -710,7 +778,7 @@ describe('Utilities:TableUtils', () => {
                     unMerge: false,
                     insertLeft: true,
                     insertRight: true,
-                    insertAbove: false,
+                    insertAbove: true,
                     insertBelow: true,
                 });
             });
