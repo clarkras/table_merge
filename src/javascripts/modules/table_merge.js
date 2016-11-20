@@ -97,23 +97,16 @@ export default class TableMerge {
                 TableMergeUtils[operation](grid, cell);
             } else if (mode === 'insert') {
                 const [rowIndex, colIndex] = TableUtils.findCell(grid, cell);
-                if (operation === 'insertAbove'){
+                if (['insertAbove', 'insertBelow'].includes(operation)){
                     const newCells = TableMergeUtils.insertAbove(grid, cell);
                     const currentRow = cell.parentElement;
                     const newRow = currentRow.cloneNode();
                     newCells.forEach(newCell => newRow.appendChild(newCell));
                     const newRowContainer = currentRow.parentNode;
-                    const newRowIndex = rowIndex;
-                    newRowContainer.insertBefore(
-                            newRow, newRowContainer.children[newRowIndex] || null);
-                }
-                if (operation === 'insertBelow'){
-                    const newCells = TableMergeUtils.insertBelow(grid, cell);
-                    const currentRow = cell.parentElement;
-                    const newRow = currentRow.cloneNode();
-                    newCells.forEach(newCell => newRow.appendChild(newCell));
-                    const newRowContainer = currentRow.parentNode;
-                    const newRowIndex = rowIndex + cell.rowSpan;
+                    let newRowIndex = rowIndex;
+                    if (operation === 'insertBelow'){
+                        newRowIndex += cell.rowSpan;
+                    }
                     newRowContainer.insertBefore(
                             newRow, newRowContainer.children[newRowIndex] || null);
                 }
