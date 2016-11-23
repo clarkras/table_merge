@@ -57,20 +57,32 @@ export default class TableMerge {
         const operations = TableUtils.operations(grid, el);
         const mode = document.body.querySelector('input:checked').value;
         ['Above', 'Below', 'Left', 'Right'].forEach(direction => {
-            const operation = `${mode}${direction}`;
             const selector = `.arrow-${direction.toLowerCase()}`;
+            if (mode === 'delete'){
+                if (['Above', 'Below'].includes(direction)){
+                    direction = 'Column';
+                } else {
+                    direction = 'Row';
+                }
+            }
+            const operation = `${mode}${direction}`;
             const arrowEl = el.querySelector(selector);
             console.assert(arrowEl);
-            arrowEl.classList.toggle('inactive', !operations[operation]);
-            if (operations[operation]){
+
+            if (mode === 'delete'){
+                arrowEl.classList.remove('inactive');
                 arrowEl.dataset.operation = operation;
             } else {
-                arrowEl.dataset.operation = '';
+                arrowEl.classList.toggle('inactive', !operations[operation]);
+                if (operations[operation]){
+                    arrowEl.dataset.operation = operation;
+                } else {
+                    arrowEl.dataset.operation = '';
+                }
             }
         });
         const arrowEl = el.querySelector('.arrow-unmerge');
-        console.assert(arrowEl);
-        if (operations.unMerge){
+        if (mode === 'merge' && operations.unMerge){
             arrowEl.querySelector('img').dataset.operation = 'unMerge';
             arrowEl.classList.toggle('inactive', false);
         } else {
@@ -89,43 +101,41 @@ export default class TableMerge {
         const operation = evt.target.dataset.operation ||
                 evt.target.parentElement.dataset.operation;
 
-        if (TableMergeUtils.hasOwnProperty(operation)){
-            const mode = document.body.querySelector('input:checked').value;
-            const grid = TableUtils.createTableGrid(table);
-            const targetEl = DOMUtils.getParent(evt.target, 'td, th');
+        const mode = document.body.querySelector('input:checked').value;
+        console.log({operation, mode});
+        const grid = TableUtils.createTableGrid(table);
+        const targetEl = DOMUtils.getParent(evt.target, 'td, th');
 
-            if (mode === 'merge'){
-                TableMergeUtils[operation](grid, targetEl);
-            } else if (mode === 'insert') {
-                const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
-                if (['insertAbove', 'insertBelow'].includes(operation)){
-                    let newCells;
-                    if (operation === 'insertAbove'){ 
-                        newCells = TableMergeUtils.insertAbove(grid, targetEl);
-                    } else {
-                        newCells = TableMergeUtils.insertBelow(grid, targetEl);
-                    }
-                    const currentRow = targetEl.parentElement;
-                    const newRow = currentRow.cloneNode();
-                    newCells.forEach(newCell => newRow.appendChild(newCell));
-                    const newRowContainer = currentRow.parentNode;
-                    let newRowIndex = rowIndex;
-                    if (operation === 'insertBelow'){
-                        newRowIndex += targetEl.rowSpan;
-                    }
-                    newRowContainer.insertBefore(
-                            newRow, newRowContainer.children[newRowIndex] || null);
-                }
-                if (['insertRight'].includes(operation)){
-                    TableUtils.insertColumn(grid, targetEl, 'right');
-                }
-                if (operation === 'insertLeft'){
-                    TableUtils.insertColumn(grid, targetEl, 'left');
-                }
+        if (mode === 'merge'){
+            TableMergeUtils[operation](grid, targetEl);
+        } else if (['insertAbove', 'insertBelow'].includes(operation)){
+            const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
+            let newCells;
+            if (operation === 'insertAbove'){ 
+                newCells = TableMergeUtils.insertAbove(grid, targetEl);
+            } else {
+                newCells = TableMergeUtils.insertBelow(grid, targetEl);
             }
-            DebugUtils.dumpTable(table);
-            this.annotateTables([table]);
+            const currentRow = targetEl.parentElement;
+            const newRow = currentRow.cloneNode();
+            newCells.forEach(newCell => newRow.appendChild(newCell));
+            const newRowContainer = currentRow.parentNode;
+            let newRowIndex = rowIndex;
+            if (operation === 'insertBelow'){
+                newRowIndex += targetEl.rowSpan;
+            }
+            newRowContainer.insertBefore(
+                    newRow, newRowContainer.children[newRowIndex] || null);
+        } else if (['insertLeft', 'insertRight'].includes(operation)){
+            const direction = operation === 'insertLeft' ? 'left' : 'right'
+            TableUtils.insertColumn(grid, targetEl, direction);
+        } else if (operation === 'deleteRow'){
+            TableUtils.deleteRow(grid, targetEl);
+        } else if (operation === 'deleteColumn'){
+            TableUtils.deleteColumn(grid, targetEl);
         }
+        DebugUtils.dumpTable(table);
+        this.annotateTables([table]);
         return false;
     }
 

@@ -1,8 +1,6 @@
 import UUID from './UUID';
 import * as XMLUtilities from './XMLUtilities';
 
-// TODO (Clark): row/column delete operations
-
 /**
  * A collection of utilities for performing merge and insert operations on a table.
  *
@@ -194,30 +192,11 @@ export function unMerge(grid, sourceEl){
     sourceEl.removeAttribute('rowspan');
 }
 
-/*
- * @param {function} operation The operation function, e.g., canMergeBelow.
- */
-export function isApplicable(operation, selectionContext){
-    return true;
-    // let targetEl = selectionContext.singleNode;
-    // if (!targetEl) return false;
-    // if (targetEl.tagName === 'TR'){
-    //     targetEl = targetEl.cells[0];
-    // }
-    // if (!targetEl) return false;
-
-    // let table = DOMUtils.getParent(targetEl, 'table');
-    // if (!table) return false;
-
-    // return operation(createTableGrid(table), targetEl);
-
-}
-
 export function insertColumn(grid, sourceEl, direction){
     let [row, col] = findCell(grid, sourceEl);
     const insertLeft = direction === 'left';
 
-    // If we're inserting right at the start of a colspan, let's insert after the cell.
+    // If we're inserting at the start of a colspan, let's insert after the cell.
     if (!insertLeft) col += sourceEl.colSpan - 1;
 
     const tableRows = sourceEl.parentElement.parentElement.rows;
@@ -297,6 +276,67 @@ export function insertBelow(grid, sourceEl){
     }
 
     return cells;
+}
+
+export function deleteRow(grid, sourceEl){
+    let [row, col] = findCell(grid, sourceEl);
+
+    const gridRow = gridAt(grid, row);
+    const rowEl = sourceEl.parentElement;
+
+    // Get the next row element down. We need this if we encounter a non-virtual cell with a
+    // rowSpan > 1. We copy the cell to the next row below and decrement the rowSpan value.
+    // This could be null if we're deleting the last row, but if a cell has a rowSpan > 1,
+    // the table is inconsistent.
+    const nextRowEl = rowEl.parentElement.rows[rowEl.rowIndex + 1];
+
+    for (let col = 0; col < gridRow.length;){
+        const cell = gridRow[col];
+
+        if (cell.rowSpan > 1) {
+            if (cell.el){
+                // We're at the top of a rowSpan; move the cell to the row below and set rowspan=1.
+
+                if (row === grid.length) throw new Error('invalid rowSpan on last row');
+
+                // Find the next cell below to the right. This can be null.
+                const nextRowCell = grid[row + 1].find((cell, i) => i > col && cell.el);
+
+                cell.el.rowSpan -= 1;
+                if (cell.el.rowSpan === 1) cell.el.removeAttribute('rowspan');
+                nextRowEl.insertBefore(cell.el, nextRowCell && nextRowCell.el || null);
+
+            } else {
+                // We're in the rowspan virtual space; shrink the cell vertically.
+                const origin = findOrigin(grid, row, col, cell);
+                origin.el.rowSpan--;
+            }
+        }
+
+        col += cell.colSpan;
+    }
+
+    rowEl.parentElement.removeChild(rowEl);
+}
+
+export function deleteColumn(grid, sourceEl){
+    let [row, col] = findCell(grid, sourceEl);
+    const sectionEl = sourceEl.parentElement.parentElement;
+
+    for (let row = 0; row < grid.length;){
+        const cell = grid[row][col];
+        const rowEl = sectionEl.rows[row];
+
+        if (cell.colSpan === 1){
+            rowEl.removeChild(cell.el);
+        } else {
+            const origin = findOrigin(grid, row, col, cell);
+            origin.el.colSpan--;
+            if (origin.colSpan === 1) origin.el.removeAttribute('colspan');
+        }
+
+        row += cell.rowSpan;
+    }
 }
 
 /**

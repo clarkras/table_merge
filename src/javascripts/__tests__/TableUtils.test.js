@@ -594,6 +594,16 @@ describe('Utilities:TableUtils', () => {
                 });
             });
 
+            it('#deleteRow', () => {
+                TableUtils.deleteRow(grid, grid[0][0].el);
+
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>B2</td><td>B3</td>
+                    </tr>
+                `);
+            });
+
             it('#unMerge', () => {
                 TableUtils.unMerge(grid, grid[0][0].el);
 

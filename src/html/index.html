@@ -13,8 +13,9 @@
 {% block content %}
   <h1>Table cell merge</h1>
   <div data-module="table_merge">
-      <input type="radio" name="mode" value="merge"> Merge<br>
-      <input type="radio" name="mode" value="insert" checked> Insert<br>
+      <input type="radio" name="mode" value="merge" > Merge<br>
+      <input type="radio" name="mode" value="insert" > Insert<br>
+      <input type="radio" name="mode" value="delete" checked> Delete<br>
       {% include "./tables/unit_test.html" %}
       {% include "./tables/simple_1.html" %}
       {% include "./tables/simple_2.html" %}
