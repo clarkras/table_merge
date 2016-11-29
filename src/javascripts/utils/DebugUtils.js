@@ -6,9 +6,9 @@ export function dumpTable(tableEl){
     console.log(tableEl);
     console.dir(tableEl);
     [...tableEl.children].forEach(el => {
-        if (el.tagName === 'CAPTION'){
+        if (el.matches('caption')){
             console.log(`${el.tagName} "${el.textContent}"`);
-        } else if (el.tagName === 'TBODY' || el.tagName === 'THEAD'){
+        } else if (el.matches('tbody, thead, tfoot')){
             console.log(el.tagName);
             [...el.children].forEach((el, rowNum) => {
                 console.log(`  ${rowNum}`, el.tagName);

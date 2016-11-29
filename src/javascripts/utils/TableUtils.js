@@ -1,3 +1,4 @@
+import * as DOMUtils from './DOMUtils';
 import UUID from './UUID';
 import * as XMLUtilities from './XMLUtilities';
 
@@ -199,7 +200,7 @@ export function insertColumn(grid, sourceEl, direction){
     // If we're inserting at the start of a colspan, let's insert after the cell.
     if (!insertLeft) col += sourceEl.colSpan - 1;
 
-    const tableRows = sourceEl.parentElement.parentElement.rows;
+    const tableRows = DOMUtils.getParent(sourceEl, 'table').rows;
 
     for (let row = 0; row < grid.length;){
         const rowEl = tableRows[row];
