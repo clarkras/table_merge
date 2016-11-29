@@ -322,11 +322,11 @@ export function deleteRow(grid, sourceEl){
 
 export function deleteColumn(grid, sourceEl){
     let [row, col] = findCell(grid, sourceEl);
-    const sectionEl = sourceEl.parentElement.parentElement;
+    const tableRows = DOMUtils.getParent(sourceEl, 'table').rows;
 
     for (let row = 0; row < grid.length;){
         const cell = grid[row][col];
-        const rowEl = sectionEl.rows[row];
+        const rowEl = tableRows[row];
 
         if (cell.colSpan === 1){
             rowEl.removeChild(cell.el);
