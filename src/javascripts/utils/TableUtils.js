@@ -17,6 +17,8 @@ import * as XMLUtilities from './XMLUtilities';
  *
  *     - rowSpan {number} The rowSpan.
  *     - colSpan {number} The colSpan.
+ *     - rowOffset {number} The number of rows to the origin cell.
+ *     - colOffset {number} The number of columns to the origin cell.
  *     - el {HTMLTableCellElement} The <TD> or <TH> element, or null if it's a virtual cell.
  *
  * As an example, here is a row that has a 2-column span:
@@ -109,6 +111,9 @@ export function isApplicable(operation, selectionContext){
     }
 
     if (TABLE_CELL_TAG_NAMES.includes(el.tagName.toLowerCase())){
+        // TODO (Clark): If operation is a merge operation, use the section (thead, tbody, or
+        // tfoot) instead of the table. This disallows merges across sections, which
+        // aren't currently supported.
         const parentTable = DOMUtils.getParent(el, 'table');
         if (parentTable){
             const grid = createTableGrid(parentTable);
@@ -287,11 +292,16 @@ export function insertRow(grid, sourceEl, direction){
         col += cell.colSpan;
     }
 
-    const newRowContainer = currentRow.parentNode;
-    let newRowIndex = row;
+    let insertionRow = currentRow;
 
-    if (!insertAbove) newRowIndex += 1;
-    newRowContainer.insertBefore(newRow, newRowContainer.children[newRowIndex] || null);
+    if (!insertAbove){
+        // Find the row below, handling rowspans.
+        for (let i = sourceEl.rowSpan; insertionRow && i > 0; i--){
+            insertionRow = insertionRow.nextElementSibling;
+        }
+    }
+
+    currentRow.parentElement.insertBefore(newRow, insertionRow);
 }
 
 export function deleteRow(grid, sourceEl){

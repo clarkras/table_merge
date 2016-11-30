@@ -1013,4 +1013,92 @@ describe('Utilities:TableUtils', () => {
 
         });
     });
+
+    describe('header and footer', () => {
+        beforeEach(() => {
+            tableEl = document.createElement('table');
+            tableEl.innerHTML = `
+                <thead>
+                    <tr>
+                        <td colspan="3">Header</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A1</td>
+                        <td>A2</td>
+                        <td>A2</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td>
+                        <td>B2</td>
+                        <td>B2</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Footer</td>
+                    </tr>
+                </tfoot>
+            `;
+            grid = TableUtils.createTableGrid(tableEl);
+        });
+
+        describe('thead - target cell (0, 0)', () => {
+            it('#insertBelow', () => {
+                TableUtils.insertRow(grid, grid[0][0].el, 'below');
+
+                expect(tableEl.tHead.innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">Header</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="3"><br></td>
+                    </tr>
+                `);
+            });
+
+            it('#insertAbove', () => {
+                TableUtils.insertRow(grid, grid[0][0].el, 'above');
+
+                expect(tableEl.tHead.innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="3"><br></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Header</td>
+                    </tr>
+                `);
+            });
+        });
+
+        describe('tfoot - target cell (0, 3)', () => {
+            it('#insertBelow', () => {
+                TableUtils.insertRow(grid, grid[3][0].el, 'below');
+
+                expect(tableEl.tFoot.innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="3">Footer</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="3"><br></td>
+                    </tr>
+                `);
+            });
+
+            it('#insertAbove', () => {
+                TableUtils.insertRow(grid, grid[3][0].el, 'above');
+
+                expect(tableEl.tFoot.innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="3"><br></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Footer</td>
+                    </tr>
+                `);
+            });
+        });
+
+    });
 });
