@@ -48,26 +48,38 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertAbove', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
 
@@ -186,26 +198,38 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertAbove', () => {
-                const cells = TableUtils.insertAbove(grid, grid[1][2].el);
-                const row = document.createElement('tr');
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[1][2].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
 
             it('#insertBelow', () => {
-                const cells = TableUtils.insertBelow(grid, grid[1][2].el);
-                const row = document.createElement('tr');
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[1][2].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td>A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
                 `);
             });
 
@@ -318,24 +342,36 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertAbove', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
         });
@@ -416,13 +452,20 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertAbove', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertAbove(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[1][1].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
         });
@@ -515,13 +558,19 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][1].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][1].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                      <td>A1</td><td colspan="2">A2, A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                    </tr>
+                    <tr>
+                      <td>B1</td><td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
         });
@@ -636,13 +685,19 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][1].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][1].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="3">A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
         });
@@ -665,25 +720,37 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertAbove', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertAbove(grid, grid[1][1].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[1][1].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="3">A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B2</td><td>B3</td>
+                    </tr>
                 `);
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[1][1].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[1][1].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="2">A1</td><td>A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B2</td><td>B3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
                 `);
             });
         });
@@ -758,13 +825,22 @@ describe('Utilities:TableUtils', () => {
             });
 
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td rowspan="2">A1 B1</td><td>A2</td>
+                    </tr>
+                    <tr>
+                        <td>B2</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td>C2</td>
+                    </tr>
                 `);
             });
         });
@@ -823,38 +899,63 @@ describe('Utilities:TableUtils', () => {
 
             it('#insertBelow', () => {
                 const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][0].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][0].el, 'below');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2" rowspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td>C2</td><td>C3</td>
+                    </tr>
                 `);
             });
         });
 
         describe('target cell (0, 2)', () => {
             it('#insertBelow', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertBelow(grid, grid[0][2].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][2].el, 'below');
 
-                const firstCell = tableEl.querySelector('td');
-
-                expect(firstCell.rowSpan).toBe(3);
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td colspan="2" rowspan="3">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td>B3</td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td>C2</td><td>C3</td>
+                    </tr>
                 `);
             });
 
             it('#insertAbove', () => {
-                const row = document.createElement('tr');
-                const cells = TableUtils.insertAbove(grid, grid[0][2].el);
-                cells.forEach(cell => row.appendChild(cell));
+                TableUtils.insertRow(grid, grid[0][2].el, 'above');
 
-                expect(row.innerHTML).toMatchWithoutWhitespace(`
-                    <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
-                    <td data-uuid="[a-h0-9]{32}"><br></td>
+                expect(tableEl.tBodies[0].innerHTML).toMatchWithoutWhitespace(`
+                    <tr>
+                        <td data-uuid="[a-h0-9]{32}" colspan="2"><br></td>
+                        <td data-uuid="[a-h0-9]{32}"><br></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" rowspan="2">A1, A2</td><td>A3</td>
+                    </tr>
+                    <tr>
+                        <td>B3</td>
+                    </tr>
+                    <tr>
+                        <td>C1</td><td>C2</td><td>C3</td>
+                    </tr>
                 `);
             });
         });

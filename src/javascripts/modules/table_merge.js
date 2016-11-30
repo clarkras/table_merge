@@ -109,23 +109,25 @@ export default class TableMerge {
         if (mode === 'merge'){
             TableMergeUtils[operation](grid, targetEl);
         } else if (['insertAbove', 'insertBelow'].includes(operation)){
-            const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
-            let newCells;
-            if (operation === 'insertAbove'){ 
-                newCells = TableMergeUtils.insertAbove(grid, targetEl);
-            } else {
-                newCells = TableMergeUtils.insertBelow(grid, targetEl);
-            }
-            const currentRow = targetEl.parentElement;
-            const newRow = currentRow.cloneNode();
-            newCells.forEach(newCell => newRow.appendChild(newCell));
-            const newRowContainer = currentRow.parentNode;
-            let newRowIndex = rowIndex;
-            if (operation === 'insertBelow'){
-                newRowIndex += targetEl.rowSpan;
-            }
-            newRowContainer.insertBefore(
-                    newRow, newRowContainer.children[newRowIndex] || null);
+            const direction = operation === 'insertAbove' ? 'above' : 'below';
+            TableUtils.insertRow(grid, targetEl, direction);
+            // const [rowIndex, colIndex] = TableUtils.findCell(grid, targetEl);
+            // let newCells;
+            // if (operation === 'insertAbove'){ 
+            //     newCells = TableMergeUtils.insertAbove(grid, targetEl);
+            // } else {
+            //     newCells = TableMergeUtils.insertBelow(grid, targetEl);
+            // }
+            // const currentRow = targetEl.parentElement;
+            // const newRow = currentRow.cloneNode();
+            // newCells.forEach(newCell => newRow.appendChild(newCell));
+            // const newRowContainer = currentRow.parentNode;
+            // let newRowIndex = rowIndex;
+            // if (operation === 'insertBelow'){
+            //     newRowIndex += targetEl.rowSpan;
+            // }
+            // newRowContainer.insertBefore(
+            //         newRow, newRowContainer.children[newRowIndex] || null);
         } else if (['insertLeft', 'insertRight'].includes(operation)){
             const direction = operation === 'insertLeft' ? 'left' : 'right'
             TableUtils.insertColumn(grid, targetEl, direction);
