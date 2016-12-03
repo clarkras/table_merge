@@ -1,3 +1,4 @@
+import * as DOMUtils from './DOMUtils';
 import UUID from './UUID';
 import * as XMLUtilities from './XMLUtilities';
 
@@ -16,6 +17,8 @@ import * as XMLUtilities from './XMLUtilities';
  *
  *     - rowSpan {number} The rowSpan.
  *     - colSpan {number} The colSpan.
+ *     - rowOffset {number} The number of rows to the origin cell.
+ *     - colOffset {number} The number of columns to the origin cell.
  *     - el {HTMLTableCellElement} The <TD> or <TH> element, or null if it's a virtual cell.
  *
  * As an example, here is a row that has a 2-column span:
@@ -64,6 +67,8 @@ export function createTableGrid(tableEl){
  *     - insertAbove
  *     - insertBelow
  *     - unMerge
+ *     - deleteColumn
+ *     - deleteRow
  *
  * @param {Array.<Array<Object>>} grid The grid.
  * @param {HTMLTableCellElement} el The TD or TH element.
@@ -82,6 +87,42 @@ export function operations(grid, el){
         insertAbove: true,
         insertBelow: true,
     };
+}
+
+/**
+ * Returns true if the specified table operation is applicable for the given context.
+ *
+ * @param {string} operation The table operation.
+ * @param {object} The selection context.
+ *
+ * @return {boolean} True if the operation applies.
+ */
+export function isApplicable(operation, selectionContext){
+    if (!app.isFeatureEnabled(ConfigurationModel.FEATURES.TABLE_CELL_MERGE)) return true;
+
+    if (!selectionContext.singleNode) return false;
+
+    let el = selectionContext.singleNode;
+
+    if (el.matches('tr')) el = el.cells[0];
+
+    if (!TABLE_CELL_TAG_NAMES.includes(el.tagName.toLowerCase())){
+        el = el.parentElement;
+    }
+
+    if (TABLE_CELL_TAG_NAMES.includes(el.tagName.toLowerCase())){
+        // TODO (Clark): If operation is a merge operation, use the section (thead, tbody, or
+        // tfoot) instead of the table. This disallows merges across sections, which
+        // aren't currently supported.
+        const parentTable = DOMUtils.getParent(el, 'table');
+        if (parentTable){
+            const grid = createTableGrid(parentTable);
+            const validOperations = operations(grid, el);
+            return validOperations[operation];
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -199,7 +240,7 @@ export function insertColumn(grid, sourceEl, direction){
     // If we're inserting at the start of a colspan, let's insert after the cell.
     if (!insertLeft) col += sourceEl.colSpan - 1;
 
-    const tableRows = sourceEl.parentElement.parentElement.rows;
+    const tableRows = DOMUtils.getParent(sourceEl, 'table').rows;
 
     for (let row = 0; row < grid.length;){
         const rowEl = tableRows[row];
@@ -225,57 +266,42 @@ export function insertColumn(grid, sourceEl, direction){
     }
 }
 
-export function insertAbove(grid, sourceEl){
-    let [row, col] = findCell(grid, sourceEl);
-
-    if (row === 0){
-        grid[0].forEach(cell => cell.rowSpan = 1);
-        // grid = grid.concat([grid[0]], grid);
-        row = 1;
-    }
-
-    const cellAbove = findOrigin(grid, row - 1, col);
-    return insertBelow(grid, cellAbove.el);
-}
-
-/**
- * TODO (Clark): This creates the cells, but doesn't actually add them to the table.
- * Side effects: increases the rowSpan of cells that intersect the insertion row.
- * @return {Array.<HTMLTableCellElement>} The new table cells.
- */
-export function insertBelow(grid, sourceEl){
+export function insertRow(grid, sourceEl, direction){
     let [row] = findCell(grid, sourceEl);
-    const cells = [];
+    const insertAbove = direction === 'above'; 
 
-    // If we're at the top of a rowspan, let's insert below the cell.
-    row = row + sourceEl.rowSpan - 1;
+    // If we're inserting below a rowspan, use the bottom of the cell.
+    if (!insertAbove) row += sourceEl.rowSpan - 1;
 
-    const gridRow = gridAt(grid, row);
+    const currentRow = sourceEl.parentElement;
+    const newRow = currentRow.cloneNode();
 
-    for (let col = 0; col < gridRow.length;){
-        const cell = gridRow[col];
+    for (let col = 0; col < grid[0].length;){
+        const cell = gridAt(grid, row, col);
+        const origin = findOrigin(grid, row, col, cell);
 
-        if (cell.el && cell.rowSpan === 1){
-            const newCell = cloneCell(cell.el);
-            if (cell.colSpan > 1) newCell.colSpan = cell.el.colSpan;
-            cells.push(newCell);
-        } else if (cell.rowSpan > 1) {
-            const origin = findOrigin(grid, row, col, cell);
-            if (cell.rowSpan === cell.rowOffset + 1){
-                // Create a new cell because this is the bottom of the rowspan.
-                const newCell = cloneCell(origin.el);
-                if (origin.colSpan > 1) newCell.colSpan = origin.colSpan;
-                cells.push(newCell);
-            } else {
-                // Extend the cell down by bumping the rowSpan.
-                origin.el.rowSpan++;
-            }
+        if ((insertAbove && cell.el) || (!insertAbove && cell.rowSpan === cell.rowOffset + 1)){
+            const newCell = cloneCell(origin.el);
+            if (cell.colSpan > 1) newCell.colSpan = cell.colSpan;
+            newRow.appendChild(newCell);
+        } else {
+            // Extend the cell down by bumping the rowSpan.
+            origin.el.rowSpan++;
         }
 
         col += cell.colSpan;
     }
 
-    return cells;
+    let insertionRow = currentRow;
+
+    if (!insertAbove){
+        // Find the row below, handling rowspans.
+        for (let i = sourceEl.rowSpan; insertionRow && i > 0; i--){
+            insertionRow = insertionRow.nextElementSibling;
+        }
+    }
+
+    currentRow.parentElement.insertBefore(newRow, insertionRow);
 }
 
 export function deleteRow(grid, sourceEl){
@@ -321,11 +347,11 @@ export function deleteRow(grid, sourceEl){
 
 export function deleteColumn(grid, sourceEl){
     let [row, col] = findCell(grid, sourceEl);
-    const sectionEl = sourceEl.parentElement.parentElement;
+    const tableRows = DOMUtils.getParent(sourceEl, 'table').rows;
 
     for (let row = 0; row < grid.length;){
         const cell = grid[row][col];
-        const rowEl = sectionEl.rows[row];
+        const rowEl = tableRows[row];
 
         if (cell.colSpan === 1){
             rowEl.removeChild(cell.el);
@@ -511,45 +537,6 @@ function canUnMerge(grid, row, col){
     return el.rowSpan > 1 || el.colSpan > 1;
 }
 
-function canInsertLeft(grid, col){
-    if (col === 0) return true;
-
-    for (let row = 0; row < grid.length; row += gridAt(grid, row, col).rowSpan){
-        // If it's a virtual cell, we can't split it with a new column.
-        if (!gridAt(grid, row, col).el) return false;
-    }
-
-    return true;
-}
-
-function canInsertRight(grid, row, col){
-    const rightCol = col + gridAt(grid, row, col).colSpan;
-
-    if (rightCol === grid[0].length){
-        return true;
-    }
-    return canInsertLeft(grid, rightCol);
-}
-
-function canInsertAbove(grid, row){
-    if (row === 0) return true;
-
-    for (let col = 0; col < grid[0].length; col += gridAt(grid, row, col).colSpan){
-        if (!gridAt(grid, row, col).el) return false;
-    }
-
-    return true;
-}
-
-function canInsertBelow(grid, row, col){
-    const belowRow = row + gridAt(grid, row, col).rowSpan;
-
-    if (belowRow === grid.length){
-        return true;
-    }
-    return canInsertAbove(grid, belowRow);
-}
-
 /**
  * Clones a table element and sets the new element's properties and content to default values.
  *
@@ -567,4 +554,35 @@ function cloneCell(sourceEl){
     return el;
 }
 
+/**
+ * The content used for newly inserted table cells.
+ *
+ * @type {string}
+ */
 const DEFAULT_CELL_CONTENT_ = '<br/>';
+
+/**
+ * The tag names of table cells.
+ *
+ * @type {string}
+ */
+export const TABLE_CELL_TAG_NAMES = ['td', 'th'];
+
+/**
+ * The tag names of table cells.
+ *
+ * @type {string}
+ */
+export const OPERATIONS = {
+    MERGE_LEFT: 'mergeLeft',
+    MERGE_RIGHT: 'mergeRight',
+    MERGE_ABOVE: 'mergeAbove',
+    MERGE_BELOW: 'mergeBelow',
+    UNMERGE: 'unMerge',
+    INSERT_LEFT: 'insertLeft',
+    INSERT_RIGHT: 'insertRight',
+    INSERT_ABOVE: 'insertAbove',
+    INSERT_BELOW: 'insertBelow',
+    DELETE_COLUMN: 'deleteColumn',
+    DELETE_ROW: 'deleteRow',
+};
